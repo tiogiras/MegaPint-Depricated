@@ -1,9 +1,9 @@
 {
-    "name": "com.unity.megapint",
-    "version": "1.0.0",
-    "displayName": "MegaPint Tool Collection",
-    "description": "A Collection of useful unity tools and gimmicks",
-    "unity": "2022.1",
+	"name": "com.unity.megapint",
+	"displayName":"MegaPint",
+	"version": "1.0.0",
+    "unity": "2019.2",
+    "description": "Collection of usefull tools and gimmicks",
     "dependencies": {
     }
 }
