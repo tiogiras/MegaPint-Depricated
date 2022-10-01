@@ -1,0 +1,12 @@
+{
+    "name": "com.tiogiras.megapint",
+    "version": "1.0.0",
+    "displayName": "MegaPint Tool Collection",
+    "description": "A Collection of useful unity tools and gimmicks",
+    "unity": "2022.1",
+    "author": {
+        "name": "Tiogiras",
+        "email": "",
+        "url": ""
+    }
+}
