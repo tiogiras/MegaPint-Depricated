@@ -1,0 +1,13 @@
+{
+  "name": "com.tiogiras.megapint",
+  "displayName": "MegaPint",
+  "version": "1.0.0",
+  "unity": "2020.1",
+  "keywords": [
+    "2d",
+    "sprite",
+    "sprite editor window"
+  ],
+  "category": "2D",
+  "description": "Collection of usefull tools and gimmicks for unity."
+}
