@@ -12,7 +12,7 @@ namespace MegaPint.Editor.Utility {
         private DateTime _nextSave;
         private float _nextInterval;
 
-        [MenuItem("MegaPint/Utility/AutoSave", false, 11)]
+        //[MenuItem("MegaPint/Utility/AutoSave", false, 11)]
         private static void Init() {
             var window = GetWindow(typeof(AutoSaveWindow));
             window.Show();

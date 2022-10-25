@@ -9,6 +9,29 @@ namespace MegaPint.Editor {
             style.normal.textColor = color;
             return style;
         }
+
+        public static GUIStyle Background(float colorValue)
+        {
+            var style = new GUIStyle
+            {
+                normal = {background = MakeTex(600, 1, new Color(colorValue, colorValue, colorValue, 1.0f))}
+            };
+            return style;
+        }
+        
+        private static Texture2D MakeTex(int width, int height, Color col)
+        {
+            Color[] pix = new Color[width*height];
+ 
+            for(int i = 0; i < pix.Length; i++)
+                pix[i] = col;
+ 
+            Texture2D result = new Texture2D(width, height);
+            result.SetPixels(pix);
+            result.Apply();
+ 
+            return result;
+        }
         
         public static GUIStyle Headline(int size) {
             var style = new GUIStyle {
