@@ -1,11 +1,12 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace MegaPint.Editor {
     public class MegaPintCategory {
-        protected static bool DrawMenuEntry(string entryLabel)
+        protected static void DrawMenuEntry(string entryLabel)
         {
-            return GUILayout.Button(entryLabel, GUILayout.ExpandWidth(true));
+
         }
 
         protected static bool DrawMenuElementEntry(string entryLabel) {

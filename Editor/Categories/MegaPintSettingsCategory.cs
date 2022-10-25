@@ -7,7 +7,7 @@ namespace MegaPint.Editor.Categories {
         public static void DrawMenu()
         {
             DrawMenuEntry("General");
-            DrawMenuElementEntry("Test");
+            //DrawMenuElementEntry("Test");
         }
     }
 }

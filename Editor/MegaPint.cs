@@ -3,16 +3,19 @@ using UnityEditor;
 using UnityEngine;
 
 namespace MegaPint.Editor {
-    public class MegaPintMainScreen : EditorWindow {
+    public class MegaPint : EditorWindow {
 
         private bool _foundSettings;
         private readonly string[] _menuCategories = {"Applications", "Utility", "Settings"};
         private int _categoryIndex;
 
+        public GUISkin skin;
+        public MegaPintSettingsData data;
+
         // --- CONTEXT FUNCTIONS ---
         [MenuItem("MegaPint/Open", false, 0)]
         private static void Init() {
-            var window = GetWindow(typeof(MegaPintMainScreen));
+            var window = GetWindow(typeof(MegaPint));
             window.Show();
         }
         
@@ -31,29 +34,32 @@ namespace MegaPint.Editor {
                 DrawNoSettingsData();
                 return;
             }
-            
-            EditorGUILayout.BeginHorizontal();
-            
-                EditorGUILayout.BeginVertical(CustomGUIUtility.Background(.19f), GUILayout.ExpandHeight(true), GUILayout.Width(200));
-                    _categoryIndex = GUILayout.Toolbar(_categoryIndex, _menuCategories, GUILayout.ExpandWidth(true));
-                    
-                    CustomGUIUtility.GuiLine(1);
-                    
-                    switch (_categoryIndex) {
-                        case 0:
-                            break;
-                        case 1:
-                            break;
-                        case 2:
-                            MegaPintSettingsCategory.DrawMenu();
-                            break;
-                    }
-                EditorGUILayout.EndVertical();
-                
-                EditorGUILayout.BeginVertical(CustomGUIUtility.Background(.22f), GUILayout.ExpandHeight(true));
-                EditorGUILayout.EndVertical();
 
-            EditorGUILayout.EndHorizontal();
+            Debug.Log(AssetDatabase.GetAssetPath(this).ToString());
+
+
+            // EditorGUILayout.BeginHorizontal();
+            //
+            //     EditorGUILayout.BeginVertical(CustomGUIUtility.Background(.19f), GUILayout.ExpandHeight(true), GUILayout.Width(200));
+            //         //_categoryIndex = GUILayout.Toolbar(_categoryIndex, _menuCategories, GUILayout.ExpandWidth(true));
+            //         
+            //         CustomGUIUtility.GuiLine(1);
+            //         
+            //         switch (_categoryIndex) {
+            //             case 0:
+            //                 break;
+            //             case 1:
+            //                 break;
+            //             case 2:
+            //                 MegaPintSettingsCategory.DrawMenu();
+            //                 break;
+            //         }
+            //     EditorGUILayout.EndVertical();
+            //     
+            //     EditorGUILayout.BeginVertical(CustomGUIUtility.Background(.22f), GUILayout.ExpandHeight(true));
+            //     EditorGUILayout.EndVertical();
+            //
+            // EditorGUILayout.EndHorizontal();
         }
         
         // --- FUNCTIONS ---
