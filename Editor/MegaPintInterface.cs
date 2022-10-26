@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace MegaPint.Editor {
     
@@ -11,19 +10,31 @@ namespace MegaPint.Editor {
 
         public List<MegaPintCategory> categories;
 
+        public static List<bool> MenuStatus;
+
+        public void DrawCategory(int activeCategory) {
+            categories[activeCategory].DrawMenu();
+        }
+        
+        public string[] GetCategoryNames() {
+            var arr = new string[categories.Count];
+            for (var i = 0; i < categories.Count; i++) {
+                arr[i] = categories[i].categoryName;
+            }
+            return arr;
+        }
+        
         [Serializable]
         public class MegaPintCategory {
             public string categoryName;
             public List<MegaPintMenu> menus;
             
-            public List<bool> DrawMenu(int expandedMenu) {
+            public void DrawMenu() {
                 var index = 0;
-                var arr = new List<bool>();
                 foreach (var menu in menus) {
-                    arr = menu.DrawMenu(index == expandedMenu);
+                    MenuStatus = menu.DrawMenu(MenuStatus != null && MenuStatus[index]);
                     index++;
                 }
-                return arr;
             }
         }
         
@@ -37,8 +48,10 @@ namespace MegaPint.Editor {
                 };
 
                 if (!expanded) return arr;
-                arr.AddRange(menuEntries.Select(entry => GUILayout.Button(entry.displayName, 
-                    MegaPint.MegaPintGUI.GetStyle("menuentrybutton"), GUILayout.ExpandWidth(true))));
+                foreach (var entry in menuEntries)
+                {
+                    GUILayout.Button(entry.displayName, MegaPint.MegaPintGUI.GetStyle("menuentrybutton"), GUILayout.ExpandWidth(true));
+                }
                 EditorGUILayout.Separator();
                 return arr;
             }

@@ -3,19 +3,23 @@ using UnityEngine;
 
 namespace MegaPint.Editor {
     
-    public class MegaPint : EditorWindow {
+    public class MegaPint : EditorWindow
+    {
 
-        private readonly string[] _menuCategories = {"Applications", "Utility", "Settings"};
+        private string[] _menuCategories;
         private int _categoryIndex;
+        private int _menuIndex;
 
         private bool _isFocused;
 
-        public static MegaPintSettings SettingsData;
+        public static MegaPintSettings Settings;
+        public static MegaPintInterface Interface;
         public static GUISkin MegaPintGUI;
 
         private static EditorWindow _window;
 
         private Vector2 _scrollPos;
+        
         
         // --- CONTEXT FUNCTIONS ---
         
@@ -35,10 +39,11 @@ namespace MegaPint.Editor {
         // --- BUILD IN ---
         
         private void OnEnable() {
-            //SettingsData = (MegaPintSettings)AssetDatabase.LoadAssetAtPath("Packages/com.tiogiras.megapint/MegaPintSettingsData.asset", typeof(MegaPintSettings));
-            //MegaPintGUI = (GUISkin)AssetDatabase.LoadAssetAtPath("Packages/com.tiogiras.megapint/MegaPint GUI.guiskin", typeof(GUISkin));
-            
-            //MegaPintSettingsCategory.LoadMenus();
+            Settings = (MegaPintSettings)AssetDatabase.LoadAssetAtPath("Packages/com.tiogiras.megapint/Resources/MegaPintSettingsData.asset", typeof(MegaPintSettings));
+            Interface = (MegaPintInterface)AssetDatabase.LoadAssetAtPath("Packages/com.tiogiras.megapint/Resources/MegaPintInterface.asset", typeof(MegaPintInterface));
+            MegaPintGUI = (GUISkin)AssetDatabase.LoadAssetAtPath("Packages/com.tiogiras.megapint/Resources/MegaPint GUI.guiskin", typeof(GUISkin));
+
+            _menuCategories = Interface.GetCategoryNames();
         }
 
         private void Update() {
@@ -65,15 +70,8 @@ namespace MegaPint.Editor {
                     _categoryIndex = GUILayout.Toolbar(_categoryIndex, _menuCategories);
                     MegaPintGUIUtility.GuiLine(2, .3f);
                     _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos, GUIStyle.none, GUI.skin.verticalScrollbar, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-                    switch (_categoryIndex)
-                        {
-                            case 0:
-                                break;
-                            case 1:
-                                break;
-                            case 2: //MegaPintSettingsCategory.DrawMenu(-1);
-                                break;
-                        }
+                    Interface.DrawCategory(_categoryIndex);
+                    
                     EditorGUILayout.EndScrollView();
                 EditorGUILayout.EndVertical();
                 EditorGUILayout.BeginVertical();
