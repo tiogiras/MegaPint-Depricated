@@ -3,89 +3,81 @@ using UnityEditor;
 using UnityEngine;
 
 namespace MegaPint.Editor {
+    
     public class MegaPint : EditorWindow {
 
-        private bool _foundSettings;
         private readonly string[] _menuCategories = {"Applications", "Utility", "Settings"};
         private int _categoryIndex;
 
-        public GUISkin skin;
-        public MegaPintSettingsData data;
+        private bool _isFocused;
 
+        public static MegaPintSettingsData SettingsData;
+        public static GUISkin MegaPintGUI;
+
+        private static EditorWindow _window;
+
+        private Vector2 _scrollPos;
+        
         // --- CONTEXT FUNCTIONS ---
+        
         [MenuItem("MegaPint/Open", false, 0)]
         private static void Init() {
-            var window = GetWindow(typeof(MegaPint));
-            window.Show();
+            _window = GetWindow(typeof(MegaPint));
+            _window.Show();
         }
         
         [MenuItem("MegaPint/Close All", false, 11)]
-        private static void CloseAll() {
-            Debug.Log("close All processes");
-        }
+        private static void CloseAll() { }
+        
         
         // --- BUILD IN ---
-        private void OnEnable() => _foundSettings = MegaPintSettingsData.CheckForExistingDataAsset() != null;
+        
+        private void OnEnable() {
+            SettingsData = (MegaPintSettingsData)AssetDatabase.LoadAssetAtPath("Packages/com.tiogiras.megapint/MegaPintSettingsData.asset", typeof(MegaPintSettingsData));
+            MegaPintGUI = (GUISkin)AssetDatabase.LoadAssetAtPath("Packages/com.tiogiras.megapint/MegaPint GUI.guiskin", typeof(GUISkin));
+        }
 
-        private void OnFocus() => _foundSettings = MegaPintSettingsData.CheckForExistingDataAsset() != null;
+        private void Update() {
+            if (_window == null) return;
+            if (_isFocused) _window.Repaint();
+        }
+
+        private void OnFocus() {
+            _isFocused = true;
+            _window = GetWindow(typeof(MegaPint));
+        }
+
+        private void OnLostFocus() => _isFocused = false;
 
         private void OnGUI() {
-            if (!_foundSettings) {
-                DrawNoSettingsData();
-                return;
-            }
+            GUI.skin = MegaPintGUI;
 
-            Debug.Log(AssetDatabase.GetAssetPath(this).ToString());
+            EditorGUILayout.BeginVertical(MegaPintGUI.GetStyle("bg1"), GUILayout.Height(25));
+                EditorGUILayout.LabelField("MegaPint of Code");
+            EditorGUILayout.EndVertical();
 
+            EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.BeginVertical(MegaPintGUI.GetStyle("bg2"), GUILayout.ExpandHeight(true), GUILayout.Width(250));
+                    _categoryIndex = GUILayout.Toolbar(_categoryIndex, _menuCategories);
+                    CustomGUIUtility.GuiLine(2, .3f);
+                    _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos, GUIStyle.none, GUI.skin.verticalScrollbar, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+                    switch (_categoryIndex)
+                        {
+                            case 0:
+                                break;
+                            case 1:
+                                break;
+                            case 2: //MegaPintSettingsCategory.DrawMenu();
+                                break;
+                        }
+                    EditorGUILayout.EndScrollView();
+                EditorGUILayout.EndVertical();
+                EditorGUILayout.BeginVertical();
+                    EditorGUILayout.LabelField("CONTENT");
+                EditorGUILayout.EndVertical();
+            EditorGUILayout.EndHorizontal();
 
-            // EditorGUILayout.BeginHorizontal();
-            //
-            //     EditorGUILayout.BeginVertical(CustomGUIUtility.Background(.19f), GUILayout.ExpandHeight(true), GUILayout.Width(200));
-            //         //_categoryIndex = GUILayout.Toolbar(_categoryIndex, _menuCategories, GUILayout.ExpandWidth(true));
-            //         
-            //         CustomGUIUtility.GuiLine(1);
-            //         
-            //         switch (_categoryIndex) {
-            //             case 0:
-            //                 break;
-            //             case 1:
-            //                 break;
-            //             case 2:
-            //                 MegaPintSettingsCategory.DrawMenu();
-            //                 break;
-            //         }
-            //     EditorGUILayout.EndVertical();
-            //     
-            //     EditorGUILayout.BeginVertical(CustomGUIUtility.Background(.22f), GUILayout.ExpandHeight(true));
-            //     EditorGUILayout.EndVertical();
-            //
-            // EditorGUILayout.EndHorizontal();
-        }
-        
-        // --- FUNCTIONS ---
-        private void DrawNoSettingsData() {
-            EditorGUILayout.Separator();
-            EditorGUILayout.LabelField("No settings data found!", CustomGUIUtility.Headline(20) );
-            EditorGUILayout.Separator();
-            EditorGUILayout.HelpBox("MegaPint stores Data in ScriptableObjects. Because of that you need a data asset to access many functions.", MessageType.Info);
-            EditorGUILayout.HelpBox("Do not change the default name of the asset.", MessageType.Warning);
-            CustomGUIUtility.GuiLine(1);
-            EditorGUILayout.Separator();
-                
-            if (!GUILayout.Button("Create data asset")) return;
-
-            var path = EditorUtility.SaveFilePanelInProject( "Create a new data asset", "MegaPintSettingsDataAsset", "asset", "" );
-            if (path.Equals("")) return;
-            var data = CreateInstance<MegaPintSettingsData>( );
-                         
-            AssetDatabase.CreateAsset( data, path );
-            AssetDatabase.SaveAssets(  );
-            AssetDatabase.Refresh();
-                         
-            EditorUtility.FocusProjectWindow(  );
-
-            _foundSettings = true;
-            Selection.activeObject = data;
+            GUI.skin = null;
         }
     }
 }
