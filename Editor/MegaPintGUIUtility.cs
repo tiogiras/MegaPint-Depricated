@@ -2,13 +2,7 @@
 using UnityEngine;
 
 namespace MegaPint.Editor {
-    public static class CustomGUIUtility {
-
-        
-
-        
-
-        
+    public static class MegaPintGUIUtility {
         
         public static void GuiLine( int height ) {
              EditorGUILayout.Separator(  );

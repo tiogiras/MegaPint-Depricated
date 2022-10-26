@@ -1,40 +1,49 @@
-using MegaPint.Editor.Categories;
 using UnityEditor;
 using UnityEngine;
 
 namespace MegaPint.Editor {
     
-    public class MegaPint : EditorWindow {
+    public class MegaPint : EditorWindow
+    {
 
-        private readonly string[] _menuCategories = {"Applications", "Utility", "Settings"};
+        private string[] _menuCategories;
         private int _categoryIndex;
+        private int _menuIndex;
 
         private bool _isFocused;
 
-        public static MegaPintSettingsData SettingsData;
+        public static MegaPintSettings Settings;
+        public static MegaPintInterface Interface;
         public static GUISkin MegaPintGUI;
 
         private static EditorWindow _window;
 
         private Vector2 _scrollPos;
         
+        
         // --- CONTEXT FUNCTIONS ---
         
         [MenuItem("MegaPint/Open", false, 0)]
         private static void Init() {
             _window = GetWindow(typeof(MegaPint));
+            _window.titleContent.text = "MegaPint";
             _window.Show();
         }
-        
+
         [MenuItem("MegaPint/Close All", false, 11)]
-        private static void CloseAll() { }
+        private static void CloseAll() {
+            _window.Close();
+        }
         
         
         // --- BUILD IN ---
         
         private void OnEnable() {
-            SettingsData = (MegaPintSettingsData)AssetDatabase.LoadAssetAtPath("Packages/com.tiogiras.megapint/MegaPintSettingsData.asset", typeof(MegaPintSettingsData));
-            MegaPintGUI = (GUISkin)AssetDatabase.LoadAssetAtPath("Packages/com.tiogiras.megapint/MegaPint GUI.guiskin", typeof(GUISkin));
+            Settings = (MegaPintSettings)AssetDatabase.LoadAssetAtPath("Packages/com.tiogiras.megapint/Resources/MegaPintSettingsData.asset", typeof(MegaPintSettings));
+            Interface = (MegaPintInterface)AssetDatabase.LoadAssetAtPath("Packages/com.tiogiras.megapint/Resources/MegaPintInterface.asset", typeof(MegaPintInterface));
+            MegaPintGUI = (GUISkin)AssetDatabase.LoadAssetAtPath("Packages/com.tiogiras.megapint/Resources/MegaPint GUI.guiskin", typeof(GUISkin));
+
+            _menuCategories = Interface.GetCategoryNames();
         }
 
         private void Update() {
@@ -59,17 +68,10 @@ namespace MegaPint.Editor {
             EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.BeginVertical(MegaPintGUI.GetStyle("bg2"), GUILayout.ExpandHeight(true), GUILayout.Width(250));
                     _categoryIndex = GUILayout.Toolbar(_categoryIndex, _menuCategories);
-                    CustomGUIUtility.GuiLine(2, .3f);
+                    MegaPintGUIUtility.GuiLine(2, .3f);
                     _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos, GUIStyle.none, GUI.skin.verticalScrollbar, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-                    switch (_categoryIndex)
-                        {
-                            case 0:
-                                break;
-                            case 1:
-                                break;
-                            case 2: //MegaPintSettingsCategory.DrawMenu();
-                                break;
-                        }
+                    Interface.DrawCategory(_categoryIndex);
+                    
                     EditorGUILayout.EndScrollView();
                 EditorGUILayout.EndVertical();
                 EditorGUILayout.BeginVertical();
