@@ -1,6 +1,6 @@
 {
-    "name": "Editor",
-    "rootNamespace": "MegaPint.",
+    "name": ".Editor",
+    "rootNamespace": "MegaPint",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -6,7 +6,7 @@ using UnityEngine;
 namespace MegaPint.Editor.Utility {
     public class AutoSaveWindow : EditorWindow {
         
-        private static MegaPintSettingsData _settingsData;
+        private static MegaPintSettings _settingsData;
         
         private DateTime _lastSaved;
         private DateTime _nextSave;
@@ -19,7 +19,7 @@ namespace MegaPint.Editor.Utility {
         }
 
         private void OnEnable() {
-            _settingsData = MegaPintSettingsData.CheckForExistingDataAsset();
+            //_settingsData = MegaPintSettingsData.CheckForExistingDataAsset();
             SetNextTime();
         }
 
