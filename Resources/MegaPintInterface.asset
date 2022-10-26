@@ -21,7 +21,7 @@ MonoBehaviour:
     menus:
     - menuName: General
       menuEntries:
-      - displayName: Applications
-      - displayName: Utility
+      - entryName: Applications
+      - entryName: Utility
     - menuName: Contact
       menuEntries: []

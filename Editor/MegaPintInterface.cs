@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace MegaPint.Editor {
     
@@ -10,10 +11,10 @@ namespace MegaPint.Editor {
 
         public List<MegaPintCategory> categories;
 
-        public static List<bool> MenuStatus;
+        private static MegaPintMenu _activeMenu;
 
         public void DrawCategory(int activeCategory) {
-            categories[activeCategory].DrawMenu();
+            categories[activeCategory].Draw();
         }
         
         public string[] GetCategoryNames() {
@@ -29,11 +30,9 @@ namespace MegaPint.Editor {
             public string categoryName;
             public List<MegaPintMenu> menus;
             
-            public void DrawMenu() {
-                var index = 0;
+            public void Draw() {
                 foreach (var menu in menus) {
-                    MenuStatus = menu.DrawMenu(MenuStatus != null && MenuStatus[index]);
-                    index++;
+                    menu.Draw();
                 }
             }
         }
@@ -42,23 +41,24 @@ namespace MegaPint.Editor {
             public string menuName;
             public List<MegaPintMenuEntry> menuEntries;
         
-            public List<bool> DrawMenu(bool expanded) {
-                var arr = new List<bool> {
-                    GUILayout.Button(menuName, MegaPint.MegaPintGUI.GetStyle("menubutton"), GUILayout.ExpandWidth(true))
-                };
+            public void Draw() {
+                if (GUILayout.Button(menuName, MegaPint.MegaPintGUI.GetStyle("menubutton"), GUILayout.ExpandWidth(true))) _activeMenu = this;
 
-                if (!expanded) return arr;
-                foreach (var entry in menuEntries)
-                {
-                    GUILayout.Button(entry.displayName, MegaPint.MegaPintGUI.GetStyle("menuentrybutton"), GUILayout.ExpandWidth(true));
+                if (_activeMenu != this) return;
+                
+                foreach (var entry in menuEntries) {
+                    entry.Draw();
                 }
                 EditorGUILayout.Separator();
-                return arr;
             }
         }
         
         [Serializable] public class MegaPintMenuEntry {
-            public string displayName;
+            public string entryName;
+
+            public void Draw() {
+                GUILayout.Button(entryName, MegaPint.MegaPintGUI.GetStyle("menuentrybutton"), GUILayout.ExpandWidth(true));
+            }
         }
     }
 }
