@@ -1,3 +1,14 @@
 {
-	"name": "MegaPint.Editor"
+    "name": "Editor",
+    "rootNamespace": "MegaPint.",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
