@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ef0e8f2eaa2b294fb0cdd31e7b5d67b, type: 3}
   m_Name: MegaPintSettingsData
   m_EditorClassIdentifier: 
+  visibleAutoSave: 1
   intervalTime: 30

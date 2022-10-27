@@ -15,6 +15,7 @@ namespace MegaPint.Editor {
         public static MegaPintSettings Settings;
         public static MegaPintInterface Interface;
         public static GUISkin MegaPintGUI;
+        public static MegaPintFunctions Functions;
 
         private static EditorWindow _window;
 
@@ -61,21 +62,19 @@ namespace MegaPint.Editor {
         private void OnGUI() {
             GUI.skin = MegaPintGUI;
 
-            EditorGUILayout.BeginVertical(MegaPintGUI.GetStyle("bg1"), GUILayout.Height(25));
-                EditorGUILayout.LabelField("MegaPint of Code");
+            EditorGUILayout.BeginVertical(MegaPintGUI.GetStyle("bg1"), GUILayout.Height(35));
+                EditorGUILayout.LabelField("MegaPint of Code", MegaPintGUI.GetStyle("header"));
             EditorGUILayout.EndVertical();
-
             EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.BeginVertical(MegaPintGUI.GetStyle("bg2"), GUILayout.ExpandHeight(true), GUILayout.Width(250));
                     _categoryIndex = GUILayout.Toolbar(_categoryIndex, _menuCategories);
                     MegaPintGUIUtility.GuiLine(2, .3f);
                     _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos, GUIStyle.none, GUI.skin.verticalScrollbar, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-                    Interface.DrawCategory(_categoryIndex);
-                    
+                        Interface.DrawCategory(_categoryIndex);
                     EditorGUILayout.EndScrollView();
                 EditorGUILayout.EndVertical();
                 EditorGUILayout.BeginVertical();
-                    EditorGUILayout.LabelField("CONTENT");
+                    Interface.DrawContent(_categoryIndex);
                 EditorGUILayout.EndVertical();
             EditorGUILayout.EndHorizontal();
 
