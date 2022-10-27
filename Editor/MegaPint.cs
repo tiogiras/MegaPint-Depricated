@@ -15,6 +15,7 @@ namespace MegaPint.Editor {
         public static MegaPintSettings Settings;
         public static MegaPintInterface Interface;
         public static GUISkin MegaPintGUI;
+        public static MegaPintFunctions Functions;
 
         private static EditorWindow _window;
 
@@ -64,7 +65,6 @@ namespace MegaPint.Editor {
             EditorGUILayout.BeginVertical(MegaPintGUI.GetStyle("bg1"), GUILayout.Height(35));
                 EditorGUILayout.LabelField("MegaPint of Code", MegaPintGUI.GetStyle("header"));
             EditorGUILayout.EndVertical();
-
             EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.BeginVertical(MegaPintGUI.GetStyle("bg2"), GUILayout.ExpandHeight(true), GUILayout.Width(250));
                     _categoryIndex = GUILayout.Toolbar(_categoryIndex, _menuCategories);

@@ -16,12 +16,19 @@ MonoBehaviour:
   - categoryName: Applications
     menus: []
   - categoryName: Utility
-    menus: []
+    menus:
+    - menuName: AutoSave
+      function: InvokeAutoSave
+      menuEntries: []
   - categoryName: Settings
     menus:
     - menuName: General
+      function: 
       menuEntries:
       - entryName: Applications
+        function: 
       - entryName: Utility
+        function: 
     - menuName: Contact
+      function: 
       menuEntries: []

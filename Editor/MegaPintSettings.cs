@@ -9,7 +9,13 @@ namespace MegaPint.Editor {
     
     public class MegaPintSettings : ScriptableObject {
 
-        // AutoSave
+        [Space, Header("Settings")]
+        [Space, Header("Visible Applications")]
+        
+        [Space, Header("Visible Utility")]
+        public bool visibleAutoSave = true;
+        
+        [Space, Header("AutoSave - Settings")]
         public int intervalTime = 30;
     }
 }
