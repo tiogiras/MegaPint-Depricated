@@ -12,6 +12,7 @@ namespace MegaPint.Editor {
         public List<MegaPintCategory> categories;
 
         private static MegaPintMenu _activeMenu;
+        private static MegaPintMenuEntry _activeMenuEntry;
 
         public void DrawCategory(int activeCategory) {
             categories[activeCategory].Draw();
@@ -24,7 +25,9 @@ namespace MegaPint.Editor {
             }
             return arr;
         }
-        
+
+        #region Generic
+
         [Serializable]
         public class MegaPintCategory {
             public string categoryName;
@@ -42,7 +45,16 @@ namespace MegaPint.Editor {
             public List<MegaPintMenuEntry> menuEntries;
         
             public void Draw() {
-                if (GUILayout.Button(menuName, MegaPint.MegaPintGUI.GetStyle("menubutton"), GUILayout.ExpandWidth(true))) _activeMenu = this;
+                if (GUILayout.Button(menuName, MegaPint.MegaPintGUI.GetStyle("menubutton"), GUILayout.ExpandWidth(true))) {
+                    if (_activeMenu == this) {
+                        if (_activeMenuEntry == null) _activeMenu = null;
+                        else _activeMenuEntry = null;
+                    }
+                    else {
+                        _activeMenu = this;
+                        _activeMenuEntry = null;
+                    }
+                }
 
                 if (_activeMenu != this) return;
                 
@@ -57,8 +69,64 @@ namespace MegaPint.Editor {
             public string entryName;
 
             public void Draw() {
-                GUILayout.Button(entryName, MegaPint.MegaPintGUI.GetStyle("menuentrybutton"), GUILayout.ExpandWidth(true));
+                if (GUILayout.Button(entryName, MegaPint.MegaPintGUI.GetStyle("menuentrybutton"), GUILayout.ExpandWidth(true))) {
+                    _activeMenuEntry = this;
+                }
             }
         }
+
+        #endregion
+
+        #region Custom
+
+        public void DrawContent(int activeCategory) {
+
+            if (_activeMenu == null) return;
+
+            switch (activeCategory) {
+                case 0: // Applications
+                    switch (_activeMenu.menuName) {
+                        
+                    }
+                    break;
+                case 1: // Utility
+                    switch (_activeMenu.menuName) {
+
+                    }
+                    break;
+                case 2: // Settings
+                    switch (_activeMenu.menuName) {
+                        case "General":
+                            if (_activeMenuEntry == null) {
+                                EditorGUILayout.Separator();
+                                EditorGUILayout.LabelField("General", MegaPint.MegaPintGUI.GetStyle("header1"));
+                                MegaPintGUIUtility.GuiLine(3);
+                                return;
+                            }
+
+                            switch (_activeMenuEntry.entryName) {
+                                case "Applications":
+                                    EditorGUILayout.Separator();
+                                    EditorGUILayout.LabelField("Applications - Settings", MegaPint.MegaPintGUI.GetStyle("header1"));
+                                    MegaPintGUIUtility.GuiLine(3);
+                                    break;
+                                case "Utility":
+                                    EditorGUILayout.Separator();
+                                    EditorGUILayout.LabelField("Utility - Settings", MegaPint.MegaPintGUI.GetStyle("header1"));
+                                    MegaPintGUIUtility.GuiLine(3);
+                                    break;
+                            }
+                            break;
+                        case "Contact":
+                            EditorGUILayout.Separator();
+                            EditorGUILayout.LabelField("Contact", MegaPint.MegaPintGUI.GetStyle("header1"));
+                            MegaPintGUIUtility.GuiLine(3);
+                            break;
+                    }
+                    break;
+            }
+        }
+
+        #endregion
     }
 }
