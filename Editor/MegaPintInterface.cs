@@ -112,14 +112,16 @@ namespace MegaPint.Editor {
                                 EditorGUILayout.LabelField("Duplicate Folder", MegaPint.Settings.autoSaveDuplicatePath);
                                 EditorGUILayout.BeginHorizontal();
                                     EditorGUILayout.Separator(); EditorGUILayout.Separator();
-                                    if (GUILayout.Button("Change")) {
-                                        MegaPint.Settings.autoSaveDuplicatePath = EditorUtility.OpenFolderPanel("Select Folder for Duplicates", "Assets/", "");
+                                    if (GUILayout.Button("Change", MegaPint.MegaPintGUI.GetStyle("button1"))) {
+                                        var path = EditorUtility.OpenFolderPanel("Select Folder for Duplicates", "Assets/", "");
+                                        if (!path.Equals("")) MegaPint.Settings.autoSaveDuplicatePath = path;
                                     }
                                     EditorGUILayout.Separator(); EditorGUILayout.Separator(); 
                                     EditorGUILayout.Separator(); EditorGUILayout.Separator();
                                 EditorGUILayout.EndHorizontal();
                             }
                             MegaPint.Settings.autoSaveAudioWarning = EditorGUILayout.Toggle("Warning on exit", MegaPint.Settings.autoSaveAudioWarning);
+                            MegaPint.Settings.autoSaveConsoleLog = EditorGUILayout.Toggle("Console Logging", MegaPint.Settings.autoSaveConsoleLog);
                             break;
                     }
                     break;

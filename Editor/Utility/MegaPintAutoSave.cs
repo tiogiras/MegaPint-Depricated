@@ -1,7 +1,9 @@
 using System;
+using System.Globalization;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace MegaPint.Editor.Utility {
     public class MegaPintAutoSave : EditorWindow {
@@ -29,20 +31,23 @@ namespace MegaPint.Editor.Utility {
             EditorGUILayout.LabelField("Next Save:", _nextSave.ToLongTimeString() + " (" + (timeToSave + " Sec)") );
             Repaint();
 
-            EditorGUILayout.BeginHorizontal();
-        
             EditorGUILayout.LabelField("Current Interval:", MegaPint.Settings.autoSaveIntervalTime + " Sec");
-
-            if (GUILayout.Button("Change")) ChangeIntervalWindow.InitWindow();
-        
-            EditorGUILayout.EndHorizontal();
-
             EditorUtility.SetDirty(this);
         
             if (!(EditorApplication.timeSinceStartup > _nextInterval)) return;
-
-            EditorSceneManager.SaveOpenScenes();
-            Debug.Log( _lastSaved + ": MegaPint Scene AutoSave");
+            
+            if (MegaPint.Settings.autoSaveMode == MegaPintSettings.MegaPintAutoSaveMode.SaveAsCurrent) EditorSceneManager.SaveOpenScenes();
+            else {
+                string path;
+                var time = DateTime.Now.Hour + "." + DateTime.Now.Minute + "." + DateTime.Now.Second;
+                if (MegaPint.Settings.autoSaveDuplicatePath.Equals("")) path = SceneManager.GetActiveScene().path;
+                else path = MegaPint.Settings.autoSaveDuplicatePath + "/" + SceneManager.GetActiveScene().name + time + ".unity";
+                EditorSceneManager.SaveScene(SceneManager.GetActiveScene(), path, true);
+                AssetDatabase.Refresh();
+            }
+            
+            if (MegaPint.Settings.autoSaveConsoleLog) Debug.Log( _lastSaved + ": MegaPint Scene AutoSave");
+            
             SetNextTime();
         }
 
@@ -52,23 +57,9 @@ namespace MegaPint.Editor.Utility {
             _nextInterval = (int)(EditorApplication.timeSinceStartup + MegaPint.Settings.autoSaveIntervalTime);
         }
 
-        private class ChangeIntervalWindow : EditorWindow {
-            public static void InitWindow() {
-                var windowRect = new Rect(new Vector2(0, 0), new Vector2(400, 100));
-                var window = GetWindowWithRect(typeof(ChangeIntervalWindow), windowRect, true, "Change TimeInterval");
-                window.Show();
-            }
-
-            private void OnGUI() {
-                EditorGUILayout.HelpBox("The TimeInterval sets the time(sec) after which the opened scene is saved.", MessageType.Info);
-                MegaPint.Settings.autoSaveIntervalTime = EditorGUILayout.IntField("Current TimeInterval", MegaPint.Settings.autoSaveIntervalTime);
-                EditorUtility.SetDirty(MegaPint.Settings);
-            }
-        }
-
         private void OnDestroy() {
-            EditorApplication.Beep();
-            Debug.LogWarning("MegaPint AutoSave disabled!");
+            if (MegaPint.Settings.autoSaveAudioWarning) EditorApplication.Beep();
+            if (MegaPint.Settings.autoSaveConsoleLog) Debug.LogWarning("MegaPint AutoSave disabled!");
         }
     }
 }

@@ -18,8 +18,10 @@ MonoBehaviour:
   - categoryName: Utility
     menus:
     - menuName: AutoSave
-      function: 1
-      menuEntries: []
+      function: 0
+      menuEntries:
+      - entryName: Start
+        function: 1
   - categoryName: Settings
     menus:
     - menuName: General
