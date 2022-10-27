@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -13,29 +12,31 @@ namespace MegaPint.Editor.Utility {
         private float _nextInterval;
         
         public static void Init() {
-            var window = GetWindow(typeof(MegaPintAutoSave));
-            window.Show();
+            MegaPint.AutoSaveWindow = GetWindow(typeof(MegaPintAutoSave), false, "AutoSave");
+            MegaPint.AutoSaveWindow.maxSize = new Vector2(300, 75);
+            MegaPint.AutoSaveWindow.minSize = new Vector2(300, 75);
+            MegaPint.AutoSaveWindow.Show();
         }
 
         private void OnEnable() => SetNextTime();
 
         private void OnGUI() {
-            if (Application.isPlaying) {
-                EditorGUILayout.HelpBox("Disabled during play mode.", MessageType.Warning);
-                return;
-            }
-
-            EditorGUILayout.LabelField("Last saved:", _lastSaved.ToLongTimeString());
-        
-            var timeToSave = (int)(_nextInterval - EditorApplication.timeSinceStartup);
-            EditorGUILayout.LabelField("Next Save:", _nextSave.ToLongTimeString() + " (" + (timeToSave + " Sec)") );
+            EditorGUILayout.BeginVertical(MegaPint.MegaPintGUI.GetStyle("bg2"), GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+                EditorGUILayout.Separator();
+                if (Application.isPlaying) {
+                    EditorGUILayout.HelpBox("Disabled during play mode.", MessageType.Warning);
+                    return;
+                }
+                EditorGUILayout.LabelField("Last saved:", _lastSaved.ToLongTimeString());
+                var timeToSave = (int)(_nextInterval - EditorApplication.timeSinceStartup);
+                EditorGUILayout.LabelField("Next Save:", _nextSave.ToLongTimeString() + " (" + (timeToSave + " Sec)") );
+                EditorGUILayout.LabelField("Current Interval:", MegaPint.Settings.autoSaveIntervalTime + " Sec");
+            EditorGUILayout.EndVertical();
+            
             Repaint();
-
-            EditorGUILayout.LabelField("Current Interval:", MegaPint.Settings.autoSaveIntervalTime + " Sec");
             EditorUtility.SetDirty(this);
         
             if (!(EditorApplication.timeSinceStartup > _nextInterval)) return;
-            
             if (MegaPint.Settings.autoSaveMode == MegaPintSettings.MegaPintAutoSaveMode.SaveAsCurrent) EditorSceneManager.SaveOpenScenes();
             else {
                 string path;
@@ -45,7 +46,6 @@ namespace MegaPint.Editor.Utility {
                 EditorSceneManager.SaveScene(SceneManager.GetActiveScene(), path, true);
                 AssetDatabase.Refresh();
             }
-            
             if (MegaPint.Settings.autoSaveConsoleLog) Debug.Log( _lastSaved + ": MegaPint Scene AutoSave");
             
             SetNextTime();

@@ -18,6 +18,7 @@ namespace MegaPint.Editor {
         public static MegaPintFunctions Functions;
 
         private static EditorWindow _window;
+        public static EditorWindow AutoSaveWindow;
 
         private Vector2 _scrollPos;
         
@@ -33,7 +34,8 @@ namespace MegaPint.Editor {
 
         [MenuItem("MegaPint/Close All", false, 11)]
         private static void CloseAll() {
-            _window.Close();
+            if (_window != null) _window.Close();
+            if (AutoSaveWindow != null) AutoSaveWindow.Close();
         }
         
         
