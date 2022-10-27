@@ -101,7 +101,26 @@ namespace MegaPint.Editor {
                     break;
                 case 1: // Utility
                     switch (_activeMenu.menuName) {
-
+                        case "AutoSave":
+                            EditorGUILayout.Separator();
+                            EditorGUILayout.LabelField("AutoSave", MegaPint.MegaPintGUI.GetStyle("header1"));
+                            MegaPintGUIUtility.GuiLine(3);
+                            EditorGUILayout.Separator();
+                            MegaPint.Settings.autoSaveIntervalTime = EditorGUILayout.IntField("Interval Time", MegaPint.Settings.autoSaveIntervalTime);
+                            MegaPint.Settings.autoSaveMode = (MegaPintSettings.MegaPintAutoSaveMode)EditorGUILayout.EnumPopup("Save Mode", MegaPint.Settings.autoSaveMode);
+                            if (MegaPint.Settings.autoSaveMode == MegaPintSettings.MegaPintAutoSaveMode.SaveAsDuplicate) {
+                                EditorGUILayout.LabelField("Duplicate Folder", MegaPint.Settings.autoSaveDuplicatePath);
+                                EditorGUILayout.BeginHorizontal();
+                                    EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                    if (GUILayout.Button("Change")) {
+                                        MegaPint.Settings.autoSaveDuplicatePath = EditorUtility.OpenFolderPanel("Select Folder for Duplicates", "Assets/", "");
+                                    }
+                                    EditorGUILayout.Separator(); EditorGUILayout.Separator(); 
+                                    EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                EditorGUILayout.EndHorizontal();
+                            }
+                            MegaPint.Settings.autoSaveAudioWarning = EditorGUILayout.Toggle("Warning on exit", MegaPint.Settings.autoSaveAudioWarning);
+                            break;
                     }
                     break;
                 case 2: // Settings

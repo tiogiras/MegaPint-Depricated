@@ -16,6 +16,10 @@ namespace MegaPint.Editor {
         public bool visibleAutoSave = true;
         
         [Space, Header("AutoSave - Settings")]
-        public int intervalTime = 30;
+        public int autoSaveIntervalTime = 30;
+        public bool autoSaveAudioWarning = true;
+        public MegaPintAutoSaveMode autoSaveMode = MegaPintAutoSaveMode.SaveAsCurrent;
+        public string autoSaveDuplicatePath = "";
+        public enum MegaPintAutoSaveMode{SaveAsCurrent, SaveAsDuplicate}
     }
 }

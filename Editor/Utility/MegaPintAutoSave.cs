@@ -31,7 +31,7 @@ namespace MegaPint.Editor.Utility {
 
             EditorGUILayout.BeginHorizontal();
         
-            EditorGUILayout.LabelField("Current Interval:", MegaPint.Settings.intervalTime + " Sec");
+            EditorGUILayout.LabelField("Current Interval:", MegaPint.Settings.autoSaveIntervalTime + " Sec");
 
             if (GUILayout.Button("Change")) ChangeIntervalWindow.InitWindow();
         
@@ -48,8 +48,8 @@ namespace MegaPint.Editor.Utility {
 
         private void SetNextTime() {            
             _lastSaved = DateTime.Now;
-            _nextSave = DateTime.Now.AddSeconds(MegaPint.Settings.intervalTime + 1);
-            _nextInterval = (int)(EditorApplication.timeSinceStartup + MegaPint.Settings.intervalTime);
+            _nextSave = DateTime.Now.AddSeconds(MegaPint.Settings.autoSaveIntervalTime + 1);
+            _nextInterval = (int)(EditorApplication.timeSinceStartup + MegaPint.Settings.autoSaveIntervalTime);
         }
 
         private class ChangeIntervalWindow : EditorWindow {
@@ -61,7 +61,7 @@ namespace MegaPint.Editor.Utility {
 
             private void OnGUI() {
                 EditorGUILayout.HelpBox("The TimeInterval sets the time(sec) after which the opened scene is saved.", MessageType.Info);
-                MegaPint.Settings.intervalTime = EditorGUILayout.IntField("Current TimeInterval", MegaPint.Settings.intervalTime);
+                MegaPint.Settings.autoSaveIntervalTime = EditorGUILayout.IntField("Current TimeInterval", MegaPint.Settings.autoSaveIntervalTime);
                 EditorUtility.SetDirty(MegaPint.Settings);
             }
         }
