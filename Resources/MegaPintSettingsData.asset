@@ -13,4 +13,12 @@ MonoBehaviour:
   m_Name: MegaPintSettingsData
   m_EditorClassIdentifier: 
   visibleAutoSave: 1
-  intervalTime: 30
+  visibleScreenshot: 1
+  autoSaveIntervalTime: 30
+  autoSaveAudioWarning: 1
+  autoSaveConsoleLog: 1
+  autoSaveMode: 1
+  autoSaveDuplicatePath: D:/Program Files/Unity Projects/MegaPintProject/Assets/AutoSaveTets
+  screenshotSavePath: D:/Program Files/Unity Projects/MegaPintProject/Assets
+  screenshotStrengthNormal: 1
+  screenshotStrengthGlow: 0.662

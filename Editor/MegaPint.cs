@@ -21,6 +21,7 @@ namespace MegaPint.Editor {
         public static EditorWindow AutoSaveWindow;
 
         private Vector2 _scrollPos;
+        private Vector2 _contentScrollPos;
         
         
         // --- CONTEXT FUNCTIONS ---
@@ -75,9 +76,12 @@ namespace MegaPint.Editor {
                         Interface.DrawCategory(_categoryIndex);
                     EditorGUILayout.EndScrollView();
                 EditorGUILayout.EndVertical();
-                EditorGUILayout.BeginVertical();
-                    Interface.DrawContent(_categoryIndex);
-                EditorGUILayout.EndVertical();
+                _contentScrollPos = EditorGUILayout.BeginScrollView(_contentScrollPos, GUIStyle.none, GUI.skin.verticalScrollbar, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+                    EditorGUILayout.BeginVertical();
+                        Interface.DrawContent(_categoryIndex);
+                        EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                    EditorGUILayout.EndVertical();
+                EditorGUILayout.EndScrollView();
             EditorGUILayout.EndHorizontal();
 
             GUI.skin = null;

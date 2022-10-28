@@ -143,15 +143,15 @@ namespace MegaPint.Editor {
                                     EditorGUILayout.LabelField("Render Camera", MegaPint.MegaPintGUI.GetStyle("header1"));
                                     MegaPintGUIUtility.GuiLine(3);
                                     EditorGUILayout.Separator();
-                                    // TODO PREVIEW
-                                    GUILayout.Box(MegaPintScreenshot.PreviewTexture);
+                                    // TODO TOGGLE PREVIEW BUTTON
+                                    GUILayout.Box(MegaPintScreenshot.PreviewTexture, GUILayout.MaxHeight(300), GUILayout.MinHeight(300));
                                     EditorGUILayout.BeginHorizontal();
                                         MegaPintScreenshot.FileName = EditorGUILayout.TextField("File Name", MegaPintScreenshot.FileName);
                                         EditorGUILayout.LabelField(".png", GUILayout.MaxWidth(100));
                                         if (GUILayout.Button("Preview", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.MaxWidth(100))) {
                                             if (MegaPintScreenshot.RenderCamera == null) EditorApplication.Beep();
                                             else {
-                                                // TODO render Image and set to preview
+                                                // TODO RENDER IMAGE IS FUCKED UP
                                                 MegaPintScreenshot.RenderPreview();
                                             }
                                         }
@@ -161,8 +161,8 @@ namespace MegaPint.Editor {
                                                 else if (MegaPintScreenshot.FileName.Equals("")) EditorApplication.Beep();
                                                 else if (MegaPint.Settings.screenshotSavePath.Equals("")) EditorApplication.Beep();
                                                 else {
-                                                    // TODO If Image is null then render Image first
-                                                    // TODO Save Image as asset
+                                                    // TODO FILE NAME IS FUCKED UP
+                                                    MegaPintScreenshot.RenderImage();
                                                 }
                                             }else EditorApplication.Beep();
                                         }
@@ -174,7 +174,7 @@ namespace MegaPint.Editor {
                                     MegaPintScreenshot.RenderCamera = (Camera) EditorGUILayout.ObjectField("Rendering Camera", MegaPintScreenshot.RenderCamera, typeof(Camera), true);
                                     if (MegaPintScreenshot.RenderCamera == null) EditorGUILayout.HelpBox( "No Rendering Camera selected", MessageType.Error );
                                     MegaPintScreenshot.CurrentResolution = (MegaPintScreenshot.MegaPintScreenshotResolutions)EditorGUILayout.EnumPopup("Resolution", MegaPintScreenshot.CurrentResolution);
-                                    MegaPint.Settings.screenshotStrengthNormal = EditorGUILayout.Slider("Image Strength", MegaPint.Settings.screenshotStrengthNormal, 0, 1);
+                                    MegaPint.Settings.screenshotStrengthNormal = EditorGUILayout.Slider("Image Strength", MegaPint.Settings.screenshotStrengthNormal, .01f, 1);
                                     MegaPint.Settings.screenshotStrengthGlow = EditorGUILayout.Slider("Postprocessing Strength", MegaPint.Settings.screenshotStrengthGlow, 0, 1);
                                     EditorGUILayout.LabelField("Output Folder", MegaPint.Settings.screenshotSavePath);
                                     if (MegaPint.Settings.screenshotSavePath.Equals("")) EditorGUILayout.HelpBox("No Folder Selected", MessageType.Error);
