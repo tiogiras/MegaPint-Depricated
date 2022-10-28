@@ -144,6 +144,7 @@ namespace MegaPint.Editor {
                                     MegaPintGUIUtility.GuiLine(3);
                                     EditorGUILayout.Separator();
                                     // TODO PREVIEW
+                                    GUILayout.Box(MegaPintScreenshot.PreviewTexture);
                                     EditorGUILayout.BeginHorizontal();
                                         MegaPintScreenshot.FileName = EditorGUILayout.TextField("File Name", MegaPintScreenshot.FileName);
                                         EditorGUILayout.LabelField(".png", GUILayout.MaxWidth(100));
@@ -151,6 +152,7 @@ namespace MegaPint.Editor {
                                             if (MegaPintScreenshot.RenderCamera == null) EditorApplication.Beep();
                                             else {
                                                 // TODO render Image and set to preview
+                                                MegaPintScreenshot.RenderPreview();
                                             }
                                         }
                                         if (GUILayout.Button("Export", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.MaxWidth(100))) {

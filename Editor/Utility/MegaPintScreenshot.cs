@@ -6,6 +6,7 @@ using UnityEngine.Experimental.Rendering;
 namespace MegaPint.Editor.Utility {
     public class MegaPintScreenshot {
 
+        public static Texture2D PreviewTexture;
         public static Camera RenderCamera;
         public static string FileName;
 
@@ -24,7 +25,20 @@ namespace MegaPint.Editor.Utility {
 
         #region RenderTool Methods
 
-        private void RenderImage( ) {
+        public static void RenderPreview() {
+            var normal = Render(GraphicsFormat.R8G8B8A8_SRGB, GraphicsFormat.D32_SFloat_S8_UInt);
+            var glow = Render(GraphicsFormat.R32G32B32A32_SFloat, GraphicsFormat.D32_SFloat_S8_UInt);
+        
+            var normalTexture = ConvertToTexture(normal);
+            var glowTexture = ConvertToTexture(glow);
+                    
+            var bytes = MixImages(normalTexture, glowTexture).EncodeToPNG();
+            
+            if (PreviewTexture == null) PreviewTexture = new Texture2D(16, 16, TextureFormat.PVRTC_RGBA4, false);
+            PreviewTexture.LoadRawTextureData(bytes);
+        }
+        
+        public static void RenderImage( ) {
             if ( MegaPint.Settings.screenshotSavePath.Equals( "" ) || FileName.Equals( "" ) || RenderCamera == null ) return;
             if ( MegaPint.Settings.screenshotStrengthNormal == 0 ) return;
         
@@ -42,7 +56,7 @@ namespace MegaPint.Editor.Utility {
             //DestroyImmediate(glow);
         }
         
-        private RenderTexture Render(GraphicsFormat format, GraphicsFormat depth) {
+        private static RenderTexture Render(GraphicsFormat format, GraphicsFormat depth) {
             var resIndex = (int)CurrentResolution;
             var result = new RenderTexture(Resolutions[resIndex].width, Resolutions[resIndex].height, format, depth);
             RenderCamera.targetTexture = result;
@@ -60,7 +74,7 @@ namespace MegaPint.Editor.Utility {
             return image;
         }
         
-        private Texture2D MixImages(Texture2D basic, Texture2D glow) {
+        private static Texture2D MixImages(Texture2D basic, Texture2D glow) {
             var result = new Texture2D(basic.width, basic.height);
             for ( var i = 0; i < basic.width; i++ ) {
                 for ( var j = 0; j < basic.height; j++ ) {
