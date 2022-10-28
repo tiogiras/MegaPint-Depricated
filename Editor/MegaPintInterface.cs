@@ -118,13 +118,14 @@ namespace MegaPint.Editor {
                             MegaPint.Settings.autoSaveMode = (MegaPintSettings.MegaPintAutoSaveMode)EditorGUILayout.EnumPopup("Save Mode", MegaPint.Settings.autoSaveMode);
                             if (MegaPint.Settings.autoSaveMode == MegaPintSettings.MegaPintAutoSaveMode.SaveAsDuplicate) {
                                 EditorGUILayout.LabelField("Duplicate Folder", MegaPint.Settings.autoSaveDuplicatePath);
+                                if (MegaPint.Settings.autoSaveDuplicatePath.Equals("")) EditorGUILayout.HelpBox("No Folder Selected", MessageType.Error);
                                 EditorGUILayout.BeginHorizontal();
                                     EditorGUILayout.Separator(); EditorGUILayout.Separator();
                                     if (GUILayout.Button("Change", MegaPint.MegaPintGUI.GetStyle("button1"))) {
                                         var path = EditorUtility.OpenFolderPanel("Select Folder for Duplicates", "Assets/", "");
                                         if (!path.Equals("")) MegaPint.Settings.autoSaveDuplicatePath = path;
                                     }
-                                    EditorGUILayout.Separator(); EditorGUILayout.Separator(); 
+                                    EditorGUILayout.Separator(); EditorGUILayout.Separator();
                                     EditorGUILayout.Separator(); EditorGUILayout.Separator();
                                 EditorGUILayout.EndHorizontal();
                             }
@@ -146,9 +147,19 @@ namespace MegaPint.Editor {
                                     MegaPintScreenshot.RenderCamera = (Camera) EditorGUILayout.ObjectField("Rendering Camera", MegaPintScreenshot.RenderCamera, typeof(Camera), true);
                                     if (MegaPintScreenshot.RenderCamera == null) EditorGUILayout.HelpBox( "No Rendering Camera selected", MessageType.Error );
                                     MegaPintScreenshot.CurrentResolution = (MegaPintScreenshot.MegaPintScreenshotResolutions)EditorGUILayout.EnumPopup("Resolution", MegaPintScreenshot.CurrentResolution);
-                                    // TODO NORMAL SLIDER
-                                    // TODO POSTPROCESSING SLIDER
-                                    // TODO PATH
+                                    MegaPint.Settings.screenshotStrengthNormal = EditorGUILayout.Slider("Image Strength", MegaPint.Settings.screenshotStrengthNormal, 0, 1);
+                                    MegaPint.Settings.screenshotStrengthGlow = EditorGUILayout.Slider("Postprocessing Strength", MegaPint.Settings.screenshotStrengthGlow, 0, 1);
+                                    EditorGUILayout.LabelField("Output Folder", MegaPint.Settings.screenshotSavePath);
+                                    if (MegaPint.Settings.screenshotSavePath.Equals("")) EditorGUILayout.HelpBox("No Folder Selected", MessageType.Error);
+                                    EditorGUILayout.BeginHorizontal();
+                                        EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                        if (GUILayout.Button("Change", MegaPint.MegaPintGUI.GetStyle("button1"))) {
+                                            var path = EditorUtility.OpenFolderPanel("Select Output Folder", "Assets/", "");
+                                            if (!path.Equals("")) MegaPint.Settings.screenshotSavePath = path;
+                                        }   
+                                        EditorGUILayout.Separator(); EditorGUILayout.Separator(); 
+                                        EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                    EditorGUILayout.EndHorizontal();  
                                     // TODO FILENAME
                                     break;
                                 case "Render Scene View": break;

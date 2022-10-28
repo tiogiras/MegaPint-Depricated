@@ -25,8 +25,8 @@ namespace MegaPint.Editor {
         public enum MegaPintAutoSaveMode{SaveAsCurrent, SaveAsDuplicate}
 
         [Space, Header("Screenshot - Settings")]
-        public string screenshotSavePath;
-        public float screenshotStrengthNormal;
-        public float screenshotStrengthGlow;
+        public string screenshotSavePath = "";
+        public float screenshotStrengthNormal = 1;
+        public float screenshotStrengthGlow = .5f;
     }
 }

@@ -25,7 +25,6 @@ namespace MegaPint.Editor.Utility {
         #region RenderTool Methods
 
         private void RenderImage( ) {
-        
             if ( MegaPint.Settings.screenshotSavePath.Equals( "" ) || FileName.Equals( "" ) || RenderCamera == null ) return;
             if ( MegaPint.Settings.screenshotStrengthNormal == 0 ) return;
         
