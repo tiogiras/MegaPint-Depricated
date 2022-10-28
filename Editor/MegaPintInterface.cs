@@ -144,6 +144,31 @@ namespace MegaPint.Editor {
                                     MegaPintGUIUtility.GuiLine(3);
                                     EditorGUILayout.Separator();
                                     // TODO PREVIEW
+                                    EditorGUILayout.BeginHorizontal();
+                                        MegaPintScreenshot.FileName = EditorGUILayout.TextField("File Name", MegaPintScreenshot.FileName);
+                                        EditorGUILayout.LabelField(".png", GUILayout.MaxWidth(100));
+                                        if (GUILayout.Button("Preview", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.MaxWidth(100))) {
+                                            if (MegaPintScreenshot.RenderCamera == null) EditorApplication.Beep();
+                                            else {
+                                                // TODO render Image and set to preview
+                                            }
+                                        }
+                                        if (GUILayout.Button("Export", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.MaxWidth(100))) {
+                                            if (MegaPintScreenshot.RenderCamera != null) {
+                                                if (MegaPintScreenshot.FileName == null) EditorApplication.Beep();
+                                                else if (MegaPintScreenshot.FileName.Equals("")) EditorApplication.Beep();
+                                                else if (MegaPint.Settings.screenshotSavePath.Equals("")) EditorApplication.Beep();
+                                                else {
+                                                    // TODO If Image is null then render Image first
+                                                    // TODO Save Image as asset
+                                                }
+                                            }else EditorApplication.Beep();
+                                        }
+                                    EditorGUILayout.EndHorizontal();
+                                    if (MegaPintScreenshot.FileName == null) EditorGUILayout.HelpBox("File Name Required", MessageType.Error);
+                                    else if (MegaPintScreenshot.FileName.Equals("")) EditorGUILayout.HelpBox("File Name Required", MessageType.Error);
+                                    EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                    EditorGUILayout.Separator(); EditorGUILayout.Separator();
                                     MegaPintScreenshot.RenderCamera = (Camera) EditorGUILayout.ObjectField("Rendering Camera", MegaPintScreenshot.RenderCamera, typeof(Camera), true);
                                     if (MegaPintScreenshot.RenderCamera == null) EditorGUILayout.HelpBox( "No Rendering Camera selected", MessageType.Error );
                                     MegaPintScreenshot.CurrentResolution = (MegaPintScreenshot.MegaPintScreenshotResolutions)EditorGUILayout.EnumPopup("Resolution", MegaPintScreenshot.CurrentResolution);
@@ -159,8 +184,7 @@ namespace MegaPint.Editor {
                                         }   
                                         EditorGUILayout.Separator(); EditorGUILayout.Separator(); 
                                         EditorGUILayout.Separator(); EditorGUILayout.Separator();
-                                    EditorGUILayout.EndHorizontal();  
-                                    // TODO FILENAME
+                                    EditorGUILayout.EndHorizontal();
                                     break;
                                 case "Render Scene View": break;
                             }
