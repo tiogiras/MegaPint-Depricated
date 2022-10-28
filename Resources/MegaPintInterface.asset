@@ -18,13 +18,23 @@ MonoBehaviour:
   - categoryName: Utility
     menus:
     - menuName: AutoSave
+      hasContent: 1
       function: 0
       menuEntries:
       - entryName: Start
         function: 1
+    - menuName: Screenshot
+      hasContent: 0
+      function: 0
+      menuEntries:
+      - entryName: Render Camera
+        function: 0
+      - entryName: Render Scene View
+        function: 0
   - categoryName: Settings
     menus:
     - menuName: General
+      hasContent: 1
       function: 0
       menuEntries:
       - entryName: Applications
@@ -32,5 +42,6 @@ MonoBehaviour:
       - entryName: Utility
         function: 0
     - menuName: Contact
+      hasContent: 0
       function: 0
       menuEntries: []

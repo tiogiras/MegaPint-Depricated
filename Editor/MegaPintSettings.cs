@@ -14,6 +14,7 @@ namespace MegaPint.Editor {
         
         [Space, Header("Visible Utility")]
         public bool visibleAutoSave = true;
+        public bool visibleScreenshot = true;
         
         [Space, Header("AutoSave - Settings")]
         public int autoSaveIntervalTime = 30;
@@ -22,5 +23,10 @@ namespace MegaPint.Editor {
         public MegaPintAutoSaveMode autoSaveMode = MegaPintAutoSaveMode.SaveAsCurrent;
         public string autoSaveDuplicatePath = "";
         public enum MegaPintAutoSaveMode{SaveAsCurrent, SaveAsDuplicate}
+
+        [Space, Header("Screenshot - Settings")]
+        public string screenshotSavePath;
+        public float screenshotStrengthNormal;
+        public float screenshotStrengthGlow;
     }
 }

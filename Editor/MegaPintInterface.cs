@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MegaPint.Editor.Utility;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -40,6 +41,7 @@ namespace MegaPint.Editor {
         
         [Serializable] public class MegaPintMenu {
             public string menuName;
+            public bool hasContent;
             public MegaPintFunctions.MegaPintFunction function;
             public List<MegaPintMenuEntry> menuEntries;
         
@@ -49,10 +51,16 @@ namespace MegaPint.Editor {
                         MegaPintFunctions.InvokeFunction(function);
                         return;
                     }
-                    
+
                     if (_activeMenu == this) {
-                        if (_activeMenuEntry == null) _activeMenu = null;
-                        else _activeMenuEntry = null;
+                        if (hasContent) {
+                            if (_activeMenuEntry == null) _activeMenu = null;
+                            else _activeMenuEntry = null;
+                        }
+                        else {
+                            _activeMenu = null;
+                            _activeMenuEntry = null;
+                        }
                     }
                     else {
                         _activeMenu = this;
@@ -123,6 +131,29 @@ namespace MegaPint.Editor {
                             MegaPint.Settings.autoSaveAudioWarning = EditorGUILayout.Toggle("Warning on exit", MegaPint.Settings.autoSaveAudioWarning);
                             MegaPint.Settings.autoSaveConsoleLog = EditorGUILayout.Toggle("Console Logging", MegaPint.Settings.autoSaveConsoleLog);
                             break;
+                        case "Screenshot":
+                            if (_activeMenuEntry == null) {
+                                return;
+                            }
+                            
+                            switch (_activeMenuEntry.entryName) {
+                                case "Render Camera":
+                                    EditorGUILayout.Separator();
+                                    EditorGUILayout.LabelField("Render Camera", MegaPint.MegaPintGUI.GetStyle("header1"));
+                                    MegaPintGUIUtility.GuiLine(3);
+                                    EditorGUILayout.Separator();
+                                    // TODO PREVIEW
+                                    MegaPintScreenshot.RenderCamera = (Camera) EditorGUILayout.ObjectField("Rendering Camera", MegaPintScreenshot.RenderCamera, typeof(Camera), true);
+                                    if (MegaPintScreenshot.RenderCamera == null) EditorGUILayout.HelpBox( "No Rendering Camera selected", MessageType.Error );
+                                    MegaPintScreenshot.CurrentResolution = (MegaPintScreenshot.MegaPintScreenshotResolutions)EditorGUILayout.EnumPopup("Resolution", MegaPintScreenshot.CurrentResolution);
+                                    // TODO NORMAL SLIDER
+                                    // TODO POSTPROCESSING SLIDER
+                                    // TODO PATH
+                                    // TODO FILENAME
+                                    break;
+                                case "Render Scene View": break;
+                            }
+                            break;
                     }
                     break;
                 case 2: // Settings
@@ -151,6 +182,7 @@ namespace MegaPint.Editor {
                                     EditorGUILayout.LabelField("Choosen utilities are displayed in the utility-menu.", MegaPint.MegaPintGUI.GetStyle("centertext"));
                                     EditorGUILayout.Separator(); EditorGUILayout.Separator(); EditorGUILayout.Separator();
                                     MegaPint.Settings.visibleAutoSave = EditorGUILayout.Toggle("Scene AutoSave",MegaPint.Settings.visibleAutoSave, MegaPint.MegaPintGUI.toggle);
+                                    MegaPint.Settings.visibleScreenshot = EditorGUILayout.Toggle("Screenshot",MegaPint.Settings.visibleScreenshot, MegaPint.MegaPintGUI.toggle);
                                     break;
                             }
                             break;
@@ -183,6 +215,7 @@ namespace MegaPint.Editor {
                 case 1: // Utility
                     switch (menuName) {
                         case "AutoSave": return MegaPint.Settings.visibleAutoSave;
+                        case "Screenshot": return MegaPint.Settings.visibleScreenshot;
                     }
                     break;
                 case 2: // Settings
@@ -197,3 +230,32 @@ namespace MegaPint.Editor {
         }
     }
 }
+
+/*
+                        _renderToolResolution = EditorGUILayout.Popup("Resolution", _renderToolResolution, _renderToolResolutionsEnum);
+                        _renderToolStrengthNormal = EditorGUILayout.Slider("Normal Strength", _renderToolStrengthNormal, 0,1);
+                        if (_renderToolStrengthNormal == 0) EditorGUILayout.HelpBox( "Normal Strength cant be 0", MessageType.Warning );
+                        _renderToolStrengthGlow = EditorGUILayout.Slider("Glow Strength", _renderToolStrengthGlow, 0,1);
+                        if (_renderToolStrengthGlow == 0) EditorGUILayout.HelpBox( "Glow Strength of 0 will ignore PostProcessing", MessageType.Info );
+            
+                        EditorGUILayout.Separator();
+                        EditorGUILayout.LabelField( "Current Path: " + _renderToolFolderPath );
+                        if ( GUILayout.Button( "Select Path" ) ) {
+                            _renderToolFolderPath = EditorUtility.OpenFolderPanel("Select Folder to safe to", "", "");
+                        }
+            
+                        if (_renderToolFolderPath.Equals( "" )) EditorGUILayout.HelpBox( "No Path found", MessageType.Warning );
+            
+                        _renderToolFileName = EditorGUILayout.TextField("File Name", _renderToolFileName );
+            
+                        if (_renderToolFileName.Equals( "" )) EditorGUILayout.HelpBox( "No FileName selected", MessageType.Warning );
+
+                        EditorGUILayout.Separator(  );
+            
+                        if ( GUILayout.Button( "Render Image" ) ) {
+                            RenderImage(  );
+                        }
+                        
+                        EditorGUILayout.Separator(  );
+                        DrawUILine( Color.grey, 1, 0 );
+*/
