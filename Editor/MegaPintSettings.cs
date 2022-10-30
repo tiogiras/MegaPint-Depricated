@@ -8,9 +8,9 @@ namespace MegaPint.Editor {
     /// </summary>
     
     public class MegaPintSettings : ScriptableObject {
-
-        [Space, Header("Settings")]
+        [Space, Header("Settings")] 
         [Space, Header("Visible Applications")]
+        public bool visibleGeoNode = true;
         
         [Space, Header("Visible Utility")]
         public bool visibleAutoSave = true;

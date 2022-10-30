@@ -104,7 +104,12 @@ namespace MegaPint.Editor {
             switch (activeCategory) {
                 case 0: // Applications
                     switch (_activeMenu.menuName) {
-                        
+                        case "GeoNode":
+                            EditorGUILayout.Separator();
+                            EditorGUILayout.LabelField("GeoNode", MegaPint.MegaPintGUI.GetStyle("header1"));
+                            MegaPintGUIUtility.GuiLine(3);
+                            EditorGUILayout.Separator();
+                            break;
                     }
                     break;
                 case 1: // Utility
@@ -250,6 +255,9 @@ namespace MegaPint.Editor {
                                     MegaPintGUIUtility.GuiLine(3);
                                     EditorGUILayout.Separator();
                                     EditorGUILayout.LabelField("Choosen applications are displayed in the applications-menu.", MegaPint.MegaPintGUI.GetStyle("centertext"));
+                                    EditorGUILayout.Separator(); EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                    MegaPint.Settings.visibleGeoNode = EditorGUILayout.Toggle("GeoNode",MegaPint.Settings.visibleGeoNode, MegaPint.MegaPintGUI.toggle);
+
                                     break;
                                 case "Utility":
                                     EditorGUILayout.Separator();
@@ -286,7 +294,7 @@ namespace MegaPint.Editor {
             switch (currentCategory) {
                 case 0: // Applications
                     switch (menuName) {
-                        
+                        case "GeoNode": return MegaPint.Settings.visibleGeoNode;
                     }
                     break;
                 case 1: // Utility
