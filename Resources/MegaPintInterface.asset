@@ -29,7 +29,7 @@ MonoBehaviour:
       menuEntries:
       - entryName: Render Camera
         function: 0
-      - entryName: Render Scene View
+      - entryName: Render Window
         function: 0
   - categoryName: Settings
     menus:
