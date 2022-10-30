@@ -258,7 +258,7 @@ namespace MegaPint.Editor {
                                     EditorGUILayout.Separator();
                                     EditorGUILayout.LabelField("Choosen utilities are displayed in the utility-menu.", MegaPint.MegaPintGUI.GetStyle("centertext"));
                                     EditorGUILayout.Separator(); EditorGUILayout.Separator(); EditorGUILayout.Separator();
-                                    MegaPint.Settings.visibleAutoSave = EditorGUILayout.Toggle("Scene AutoSave",MegaPint.Settings.visibleAutoSave, MegaPint.MegaPintGUI.toggle);
+                                    MegaPint.Settings.visibleAutoSave = EditorGUILayout.Toggle("AutoSave - Scene",MegaPint.Settings.visibleAutoSave, MegaPint.MegaPintGUI.toggle);
                                     MegaPint.Settings.visibleScreenshot = EditorGUILayout.Toggle("Screenshot",MegaPint.Settings.visibleScreenshot, MegaPint.MegaPintGUI.toggle);
                                     break;
                             }
@@ -291,7 +291,7 @@ namespace MegaPint.Editor {
                     break;
                 case 1: // Utility
                     switch (menuName) {
-                        case "AutoSave": return MegaPint.Settings.visibleAutoSave;
+                        case "AutoSave - Scene": return MegaPint.Settings.visibleAutoSave;
                         case "Screenshot": return MegaPint.Settings.visibleScreenshot;
                     }
                     break;
@@ -307,32 +307,3 @@ namespace MegaPint.Editor {
         }
     }
 }
-
-/*
-                        _renderToolResolution = EditorGUILayout.Popup("Resolution", _renderToolResolution, _renderToolResolutionsEnum);
-                        _renderToolStrengthNormal = EditorGUILayout.Slider("Normal Strength", _renderToolStrengthNormal, 0,1);
-                        if (_renderToolStrengthNormal == 0) EditorGUILayout.HelpBox( "Normal Strength cant be 0", MessageType.Warning );
-                        _renderToolStrengthGlow = EditorGUILayout.Slider("Glow Strength", _renderToolStrengthGlow, 0,1);
-                        if (_renderToolStrengthGlow == 0) EditorGUILayout.HelpBox( "Glow Strength of 0 will ignore PostProcessing", MessageType.Info );
-            
-                        EditorGUILayout.Separator();
-                        EditorGUILayout.LabelField( "Current Path: " + _renderToolFolderPath );
-                        if ( GUILayout.Button( "Select Path" ) ) {
-                            _renderToolFolderPath = EditorUtility.OpenFolderPanel("Select Folder to safe to", "", "");
-                        }
-            
-                        if (_renderToolFolderPath.Equals( "" )) EditorGUILayout.HelpBox( "No Path found", MessageType.Warning );
-            
-                        _renderToolFileName = EditorGUILayout.TextField("File Name", _renderToolFileName );
-            
-                        if (_renderToolFileName.Equals( "" )) EditorGUILayout.HelpBox( "No FileName selected", MessageType.Warning );
-
-                        EditorGUILayout.Separator(  );
-            
-                        if ( GUILayout.Button( "Render Image" ) ) {
-                            RenderImage(  );
-                        }
-                        
-                        EditorGUILayout.Separator(  );
-                        DrawUILine( Color.grey, 1, 0 );
-*/

@@ -17,7 +17,7 @@ MonoBehaviour:
     menus: []
   - categoryName: Utility
     menus:
-    - menuName: AutoSave
+    - menuName: AutoSave - Scene
       hasContent: 1
       function: 0
       menuEntries:
