@@ -33,9 +33,10 @@ namespace MegaPint.Editor.Utility {
             var glowTexture = ConvertToTexture(glow);
                     
             var bytes = MixImages(normalTexture, glowTexture).EncodeToPNG();
-            
-            if (PreviewTexture == null) PreviewTexture = new Texture2D(16, 16, TextureFormat.PVRTC_RGBA4, false);
-            PreviewTexture.LoadRawTextureData(bytes);
+
+            if (PreviewTexture == null) PreviewTexture = new Texture2D(normal.width, normal.height);
+            PreviewTexture.LoadImage(bytes);
+            PreviewTexture.Apply();
         }
         
         public static void RenderImage( ) {
@@ -51,9 +52,6 @@ namespace MegaPint.Editor.Utility {
             var bytes = MixImages(normalTexture, glowTexture).EncodeToPNG();
             File.WriteAllBytes(MegaPint.GetApplicationPath() + MegaPint.Settings.screenshotSavePath + "/" + FileName + ".png", bytes);
             AssetDatabase.Refresh();
-            
-            //DestroyImmediate(normal);
-            //DestroyImmediate(glow);
         }
         
         private static RenderTexture Render(GraphicsFormat format, GraphicsFormat depth) {

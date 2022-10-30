@@ -147,7 +147,14 @@ namespace MegaPint.Editor {
                                     MegaPintGUIUtility.GuiLine(3);
                                     EditorGUILayout.Separator();
                                     // TODO TOGGLE PREVIEW BUTTON
-                                    GUILayout.Box(MegaPintScreenshot.PreviewTexture, GUILayout.MaxHeight(300), GUILayout.MinHeight(300));
+                                    GUILayout.Box(MegaPintScreenshot.PreviewTexture, GUILayout.MaxHeight(300), GUILayout.MinHeight(300), GUILayout.ExpandWidth(true));
+                                    // if (MegaPintScreenshot.PreviewTexture != null)
+                                    // {
+                                    //     var rectPos = EditorGUILayout.GetControlRect().center;
+                                    //     var rectScale = new Vector2(MegaPintScreenshot.PreviewTexture.width, MegaPintScreenshot.PreviewTexture.height);
+                                    //     EditorGUI.DrawPreviewTexture(new Rect(rectPos, rectScale), MegaPintScreenshot.PreviewTexture);
+                                    // }
+                                    
                                     EditorGUILayout.BeginHorizontal();
                                         MegaPintScreenshot.FileName = EditorGUILayout.TextField("File Name", MegaPintScreenshot.FileName);
                                         EditorGUILayout.LabelField(".png", GUILayout.MaxWidth(100));
@@ -163,10 +170,7 @@ namespace MegaPint.Editor {
                                                 if (MegaPintScreenshot.FileName == null) EditorApplication.Beep();
                                                 else if (MegaPintScreenshot.FileName.Equals("")) EditorApplication.Beep();
                                                 else if (MegaPint.Settings.screenshotSavePath.Equals("")) EditorApplication.Beep();
-                                                else {
-                                                    // TODO FILE NAME IS FUCKED UP
-                                                    MegaPintScreenshot.RenderImage();
-                                                }
+                                                else MegaPintScreenshot.RenderImage();
                                             }else EditorApplication.Beep();
                                         }
                                     EditorGUILayout.EndHorizontal();
