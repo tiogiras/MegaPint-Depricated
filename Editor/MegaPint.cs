@@ -86,5 +86,16 @@ namespace MegaPint.Editor {
 
             GUI.skin = null;
         }
+        
+        
+        // --- FUNCTIONS ---
+        
+        public static string GetApplicationPath() {
+            var localPath = Application.dataPath;
+            var parts = localPath.Split("/");
+            localPath = "";
+            for (var i = 0; i < parts.Length - 1; i++) localPath += parts[i] + "/";
+            return localPath;
+        }
     }
 }

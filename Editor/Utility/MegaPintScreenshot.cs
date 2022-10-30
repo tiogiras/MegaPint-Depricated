@@ -49,7 +49,7 @@ namespace MegaPint.Editor.Utility {
             var glowTexture = ConvertToTexture(glow);
                     
             var bytes = MixImages(normalTexture, glowTexture).EncodeToPNG();
-            File.WriteAllBytes(MegaPint.Settings.screenshotSavePath + "/" + MegaPint.Settings.screenshotStrengthNormal + ".png", bytes);
+            File.WriteAllBytes(MegaPint.GetApplicationPath() + MegaPint.Settings.screenshotSavePath + "/" + FileName + ".png", bytes);
             AssetDatabase.Refresh();
             
             //DestroyImmediate(normal);

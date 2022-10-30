@@ -42,7 +42,7 @@ namespace MegaPint.Editor.Utility {
                 string path;
                 var time = DateTime.Now.Hour + "." + DateTime.Now.Minute + "." + DateTime.Now.Second;
                 if (MegaPint.Settings.autoSaveDuplicatePath.Equals("")) path = SceneManager.GetActiveScene().path;
-                else path = MegaPint.Settings.autoSaveDuplicatePath + "/" + SceneManager.GetActiveScene().name + time + ".unity";
+                else path = MegaPint.GetApplicationPath() + MegaPint.Settings.autoSaveDuplicatePath + "/" + SceneManager.GetActiveScene().name + "_" + time + ".unity";
                 EditorSceneManager.SaveScene(SceneManager.GetActiveScene(), path, true);
                 AssetDatabase.Refresh();
             }

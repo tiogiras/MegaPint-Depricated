@@ -117,13 +117,16 @@ namespace MegaPint.Editor {
                             MegaPint.Settings.autoSaveIntervalTime = EditorGUILayout.IntField("Interval Time", MegaPint.Settings.autoSaveIntervalTime);
                             MegaPint.Settings.autoSaveMode = (MegaPintSettings.MegaPintAutoSaveMode)EditorGUILayout.EnumPopup("Save Mode", MegaPint.Settings.autoSaveMode);
                             if (MegaPint.Settings.autoSaveMode == MegaPintSettings.MegaPintAutoSaveMode.SaveAsDuplicate) {
-                                EditorGUILayout.LabelField("Duplicate Folder", MegaPint.Settings.autoSaveDuplicatePath);
+                                EditorGUILayout.LabelField("Duplicate Folder", ".../" + MegaPint.Settings.autoSaveDuplicatePath);
                                 if (MegaPint.Settings.autoSaveDuplicatePath.Equals("")) EditorGUILayout.HelpBox("No Folder Selected", MessageType.Error);
                                 EditorGUILayout.BeginHorizontal();
                                     EditorGUILayout.Separator(); EditorGUILayout.Separator();
                                     if (GUILayout.Button("Change", MegaPint.MegaPintGUI.GetStyle("button1"))) {
                                         var path = EditorUtility.OpenFolderPanel("Select Folder for Duplicates", "Assets/", "");
-                                        if (!path.Equals("")) MegaPint.Settings.autoSaveDuplicatePath = path;
+                                        if (!path.Equals("")) {
+                                            path = path.Replace(MegaPint.GetApplicationPath(), "");
+                                            MegaPint.Settings.autoSaveDuplicatePath = path;
+                                        }
                                     }
                                     EditorGUILayout.Separator(); EditorGUILayout.Separator();
                                     EditorGUILayout.Separator(); EditorGUILayout.Separator();
@@ -176,13 +179,16 @@ namespace MegaPint.Editor {
                                     MegaPintScreenshot.CurrentResolution = (MegaPintScreenshot.MegaPintScreenshotResolutions)EditorGUILayout.EnumPopup("Resolution", MegaPintScreenshot.CurrentResolution);
                                     MegaPint.Settings.screenshotStrengthNormal = EditorGUILayout.Slider("Image Strength", MegaPint.Settings.screenshotStrengthNormal, .01f, 1);
                                     MegaPint.Settings.screenshotStrengthGlow = EditorGUILayout.Slider("Postprocessing Strength", MegaPint.Settings.screenshotStrengthGlow, 0, 1);
-                                    EditorGUILayout.LabelField("Output Folder", MegaPint.Settings.screenshotSavePath);
+                                    EditorGUILayout.LabelField("Output Folder", ".../" + MegaPint.Settings.screenshotSavePath);
                                     if (MegaPint.Settings.screenshotSavePath.Equals("")) EditorGUILayout.HelpBox("No Folder Selected", MessageType.Error);
                                     EditorGUILayout.BeginHorizontal();
                                         EditorGUILayout.Separator(); EditorGUILayout.Separator();
                                         if (GUILayout.Button("Change", MegaPint.MegaPintGUI.GetStyle("button1"))) {
                                             var path = EditorUtility.OpenFolderPanel("Select Output Folder", "Assets/", "");
-                                            if (!path.Equals("")) MegaPint.Settings.screenshotSavePath = path;
+                                            if (!path.Equals("")) {
+                                                path = path.Replace(MegaPint.GetApplicationPath(), "");
+                                                MegaPint.Settings.screenshotSavePath = path;
+                                            }
                                         }   
                                         EditorGUILayout.Separator(); EditorGUILayout.Separator(); 
                                         EditorGUILayout.Separator(); EditorGUILayout.Separator();
