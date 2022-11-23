@@ -5,8 +5,7 @@ using UnityEngine;
 
 namespace MegaPint.Editor {
     
-    public class MegaPint : EditorWindow
-    {
+    public class MegaPint : EditorWindow {
 
         private string[] _menuCategories;
         private int _categoryIndex;
@@ -17,10 +16,10 @@ namespace MegaPint.Editor {
         public static MegaPintSettings Settings;
         public static MegaPintInterface Interface;
         public static GUISkin MegaPintGUI;
-        public static MegaPintFunctions Functions;
 
         private static EditorWindow _window;
         public static EditorWindow AutoSaveWindow;
+        public static EditorWindow CreateMaterialSetWindow;
 
         private Vector2 _scrollPos;
         private Vector2 _contentScrollPos;

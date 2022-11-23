@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using MegaPint.Editor.Utility;
+using MegaPint.Editor.Utility.MaterialSets;
 using UnityEditor;
 using UnityEngine;
 
@@ -79,13 +80,14 @@ namespace MegaPint.Editor {
         
         [Serializable] public class MegaPintMenuEntry {
             public string entryName;
+            public bool hasContent;
             public MegaPintFunctions.MegaPintFunction function;
             
             public void Draw() {
                 if (GUILayout.Button(entryName, MegaPint.MegaPintGUI.GetStyle("menuentrybutton"), GUILayout.ExpandWidth(true))) {
                     if (function != MegaPintFunctions.MegaPintFunction.None) {
                         MegaPintFunctions.InvokeFunction(function);
-                        return;
+                        if (!hasContent) return;
                     }
                     
                     _activeMenuEntry = this;
@@ -253,7 +255,7 @@ namespace MegaPint.Editor {
                                 EditorGUILayout.LabelField("Material Sets", MegaPint.MegaPintGUI.GetStyle("header1"));
                                 MegaPintGUIUtility.GuiLine(3);
                                 EditorGUILayout.Separator();
-                                EditorGUILayout.LabelField("Test", MegaPint.MegaPintGUI.GetStyle("centertext"));
+                                EditorGUILayout.LabelField("INFOOOOOOO LOREM IPSUM", MegaPint.MegaPintGUI.GetStyle("centertext"));
                                 return;
                             }
 
@@ -263,6 +265,17 @@ namespace MegaPint.Editor {
                                     EditorGUILayout.LabelField("Material Sets", MegaPint.MegaPintGUI.GetStyle("header1"));
                                     MegaPintGUIUtility.GuiLine(3);
                                     EditorGUILayout.Separator();
+                                    if (MegaPint.Settings.materialSets.Count > 0) {
+                                        foreach (var VARIABLE in MegaPint.Settings.materialSets) {
+                                            EditorGUILayout.LabelField("hi");
+                                        }
+                                    }
+
+                                    if (GUILayout.Button("Create new Material Set", MegaPint.MegaPintGUI.GetStyle("button1")))
+                                    {
+                                        MegaPintCreateMaterialSet.Init();
+                                    }
+                                    
                                     break;
                             }
                             break;
