@@ -16,7 +16,7 @@ MonoBehaviour:
   - categoryName: Applications
     menus:
     - menuName: GeoNode
-      hasContent: 1
+      hasContent: 0
       function: 0
       menuEntries: []
   - categoryName: Utility
@@ -34,6 +34,12 @@ MonoBehaviour:
       - entryName: Render Camera
         function: 0
       - entryName: Render Window
+        function: 0
+    - menuName: Material Sets
+      hasContent: 1
+      function: 0
+      menuEntries:
+      - entryName: Edit
         function: 0
   - categoryName: Settings
     menus:

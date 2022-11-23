@@ -1,0 +1,13 @@
+﻿#if UNITY_EDITOR
+
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace MegaPint.Editor.Utility.MaterialSets {
+    public class MegaPintMaterialSet : ScriptableObject {
+        public string materialSetName;
+        public List<Material> materials;
+    }
+}
+
+#endif

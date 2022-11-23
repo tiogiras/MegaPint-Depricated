@@ -247,6 +247,25 @@ namespace MegaPint.Editor {
                                     break;
                             }
                             break;
+                        case "Material Sets":
+                            if (_activeMenuEntry == null) {
+                                EditorGUILayout.Separator();
+                                EditorGUILayout.LabelField("Material Sets", MegaPint.MegaPintGUI.GetStyle("header1"));
+                                MegaPintGUIUtility.GuiLine(3);
+                                EditorGUILayout.Separator();
+                                EditorGUILayout.LabelField("Test", MegaPint.MegaPintGUI.GetStyle("centertext"));
+                                return;
+                            }
+
+                            switch (_activeMenuEntry.entryName) {
+                                case "Edit":
+                                    EditorGUILayout.Separator();
+                                    EditorGUILayout.LabelField("Material Sets", MegaPint.MegaPintGUI.GetStyle("header1"));
+                                    MegaPintGUIUtility.GuiLine(3);
+                                    EditorGUILayout.Separator();
+                                    break;
+                            }
+                            break;
                     }
                     break;
                 case 2: // Settings
@@ -279,6 +298,7 @@ namespace MegaPint.Editor {
                                     EditorGUILayout.Separator(); EditorGUILayout.Separator(); EditorGUILayout.Separator();
                                     MegaPint.Settings.visibleAutoSave = EditorGUILayout.Toggle("AutoSave - Scene",MegaPint.Settings.visibleAutoSave, MegaPint.MegaPintGUI.toggle);
                                     MegaPint.Settings.visibleScreenshot = EditorGUILayout.Toggle("Screenshot",MegaPint.Settings.visibleScreenshot, MegaPint.MegaPintGUI.toggle);
+                                    MegaPint.Settings.visibleMaterialSets = EditorGUILayout.Toggle("Material Sets",MegaPint.Settings.visibleMaterialSets, MegaPint.MegaPintGUI.toggle);
                                     break;
                             }
                             break;
@@ -312,6 +332,7 @@ namespace MegaPint.Editor {
                     switch (menuName) {
                         case "AutoSave - Scene": return MegaPint.Settings.visibleAutoSave;
                         case "Screenshot": return MegaPint.Settings.visibleScreenshot;
+                        case "Material Sets": return MegaPint.Settings.visibleMaterialSets;
                     }
                     break;
                 case 2: // Settings

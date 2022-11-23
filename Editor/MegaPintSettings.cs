@@ -17,6 +17,7 @@ namespace MegaPint.Editor {
         [Space, Header("Visible Utility")]
         public bool visibleAutoSave = true;
         public bool visibleScreenshot = true;
+        public bool visibleMaterialSets = true;
         
         [Space, Header("AutoSave - Settings")]
         public int autoSaveIntervalTime = 30;
