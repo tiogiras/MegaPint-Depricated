@@ -15,10 +15,12 @@ namespace MegaPint.Editor.Utility {
         public static Camera RenderCamera;
         public static string FileName;
         public static string WindowName;
+        public static int CustomXRes;
+        public static int CustomYRes;
 
         public static MegaPintScreenshotResolutions CurrentResolution;
         public enum MegaPintScreenshotResolutions {
-            HD, FullHD, WQHD, UHD1, UHD2
+            HD, FullHD, WQHD, UHD1, UHD2, Custom
         }
 
         public static MegaPintTargetWindows CurrentWindow;
@@ -161,8 +163,13 @@ namespace MegaPint.Editor.Utility {
         }
 
         private static RenderTexture Render(GraphicsFormat format, GraphicsFormat depth) {
-            var resIndex = (int)CurrentResolution;
-            var result = new RenderTexture(Resolutions[resIndex].width, Resolutions[resIndex].height, format, depth);
+            RenderTexture result;
+            if (CurrentResolution == MegaPintScreenshotResolutions.Custom) result = new RenderTexture(CustomXRes, CustomYRes, format, depth);
+            else {
+                var resIndex = (int)CurrentResolution;
+                result = new RenderTexture(Resolutions[resIndex].width, Resolutions[resIndex].height, format, depth);   
+            }
+            
             RenderCamera.targetTexture = result;
             RenderCamera.Render();
             RenderCamera.targetTexture = null;

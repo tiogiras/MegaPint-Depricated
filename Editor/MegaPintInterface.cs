@@ -175,6 +175,17 @@ namespace MegaPint.Editor {
                                     MegaPintScreenshot.RenderCamera = (Camera) EditorGUILayout.ObjectField("Rendering Camera", MegaPintScreenshot.RenderCamera, typeof(Camera), true);
                                     if (MegaPintScreenshot.RenderCamera == null) EditorGUILayout.HelpBox( "No Rendering Camera selected", MessageType.Error );
                                     MegaPintScreenshot.CurrentResolution = (MegaPintScreenshot.MegaPintScreenshotResolutions)EditorGUILayout.EnumPopup("Resolution", MegaPintScreenshot.CurrentResolution);
+                                    if (MegaPintScreenshot.CurrentResolution == MegaPintScreenshot.MegaPintScreenshotResolutions.Custom) {
+                                        EditorGUILayout.BeginHorizontal();
+                                        EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                        EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                        MegaPintScreenshot.CustomXRes = EditorGUILayout.IntField("Width", MegaPintScreenshot.CustomXRes);
+                                        if (MegaPintScreenshot.CustomXRes <= 0) MegaPintScreenshot.CustomXRes = 1;
+                                        EditorGUILayout.Separator();
+                                        MegaPintScreenshot.CustomYRes = EditorGUILayout.IntField("Height", MegaPintScreenshot.CustomYRes);
+                                        if (MegaPintScreenshot.CustomYRes <= 0) MegaPintScreenshot.CustomYRes = 1;
+                                        EditorGUILayout.EndHorizontal();
+                                    }
                                     MegaPint.Settings.screenshotStrengthNormal = EditorGUILayout.Slider("Image Strength", MegaPint.Settings.screenshotStrengthNormal, .01f, 1);
                                     MegaPint.Settings.screenshotStrengthGlow = EditorGUILayout.Slider("Postprocessing Strength", MegaPint.Settings.screenshotStrengthGlow, 0, 1);
                                     EditorGUILayout.LabelField("Output Folder", ".../" + MegaPint.Settings.screenshotSavePath);
