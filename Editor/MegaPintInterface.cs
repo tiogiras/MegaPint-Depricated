@@ -114,7 +114,7 @@ namespace MegaPint.Editor {
                     break;
                 case 1: // Utility
                     switch (_activeMenu.menuName) {
-                        case "AutoSave":
+                        case "AutoSave - Scene":
                             EditorGUILayout.Separator();
                             EditorGUILayout.LabelField("AutoSave", MegaPint.MegaPintGUI.GetStyle("header1"));
                             MegaPintGUIUtility.GuiLine(3);

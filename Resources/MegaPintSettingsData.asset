@@ -12,13 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ef0e8f2eaa2b294fb0cdd31e7b5d67b, type: 3}
   m_Name: MegaPintSettingsData
   m_EditorClassIdentifier: 
+  visibleGeoNode: 1
   visibleAutoSave: 1
   visibleScreenshot: 1
   autoSaveIntervalTime: 30
   autoSaveAudioWarning: 1
   autoSaveConsoleLog: 1
-  autoSaveMode: 1
-  autoSaveDuplicatePath: D:/Program Files/Unity Projects/MegaPintProject/Assets/AutoSaveTets
-  screenshotSavePath: D:/Program Files/Unity Projects/MegaPintProject/Assets
+  autoSaveMode: 0
+  autoSaveDuplicatePath: Assets
+  screenshotSavePath: Assets
   screenshotStrengthNormal: 1
-  screenshotStrengthGlow: 0.662
+  screenshotStrengthGlow: 0.5
