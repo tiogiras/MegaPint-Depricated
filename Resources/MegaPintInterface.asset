@@ -14,13 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   categories:
   - categoryName: Applications
-    menus:
-    - menuName: GeoNode
-      hasContent: 0
-      function: 0
-      menuEntries:
-      - entryName: Debug
-        function: 2
+    menus: []
   - categoryName: Utility
     menus:
     - menuName: AutoSave - Scene
