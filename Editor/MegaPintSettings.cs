@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using UnityEngine;
 
 namespace MegaPint.Editor {
@@ -8,9 +10,9 @@ namespace MegaPint.Editor {
     /// </summary>
     
     public class MegaPintSettings : ScriptableObject {
-
-        [Space, Header("Settings")]
+        [Space, Header("Settings")] 
         [Space, Header("Visible Applications")]
+        public bool visibleGeoNode = true;
         
         [Space, Header("Visible Utility")]
         public bool visibleAutoSave = true;
@@ -30,3 +32,5 @@ namespace MegaPint.Editor {
         public float screenshotStrengthGlow = .5f;
     }
 }
+
+#endif

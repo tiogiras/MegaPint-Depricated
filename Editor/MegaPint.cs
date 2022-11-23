@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using UnityEditor;
 using UnityEngine;
 
@@ -99,3 +101,5 @@ namespace MegaPint.Editor {
         }
     }
 }
+
+#endif
