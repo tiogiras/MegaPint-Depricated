@@ -1,10 +1,10 @@
+#if UNITY_EDITOR
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MegaPint.Editor.Utility;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace MegaPint.Editor {
     
@@ -315,3 +315,5 @@ namespace MegaPint.Editor {
         }
     }
 }
+
+#endif

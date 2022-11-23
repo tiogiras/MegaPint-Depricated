@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#if UNITY_EDITOR
+
 using System.IO;
 using UnityEditor;
 using UnityEditorInternal;
@@ -8,7 +8,7 @@ using UnityEngine.Experimental.Rendering;
 using Object = UnityEngine.Object;
 
 namespace MegaPint.Editor.Utility {
-    public class MegaPintScreenshot {
+    public static class MegaPintScreenshot {
 
         public static Texture2D PreviewTexture;
         public static Texture2D WindowPreviewTexture;
@@ -193,3 +193,5 @@ namespace MegaPint.Editor.Utility {
         #endregion
     }
 }
+
+#endif

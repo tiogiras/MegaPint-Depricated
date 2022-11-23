@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using UnityEngine;
 
 namespace MegaPint.Editor {
@@ -30,3 +32,5 @@ namespace MegaPint.Editor {
         public float screenshotStrengthGlow = .5f;
     }
 }
+
+#endif

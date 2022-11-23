@@ -1,4 +1,6 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+
+using UnityEditor;
 using UnityEngine;
 
 namespace MegaPint.Editor {
@@ -21,3 +23,5 @@ namespace MegaPint.Editor {
         }
     }
 }
+
+#endif
