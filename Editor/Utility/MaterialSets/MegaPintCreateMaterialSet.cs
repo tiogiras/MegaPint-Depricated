@@ -19,6 +19,8 @@ namespace MegaPint.Editor.Utility.MaterialSets {
             MegaPint.CreateMaterialSetWindow.minSize = new Vector2(500, 350);
             MegaPint.CreateMaterialSetWindow.Show();
 
+            MegaPintMaterialSets.UpdateMaterialSetsTemp();
+            
             _materials = new List<Material>();
             _setName = "";
             _scrollPos = Vector2.zero;
@@ -37,9 +39,9 @@ namespace MegaPint.Editor.Utility.MaterialSets {
 
             EditorGUILayout.BeginHorizontal();
             _setName = EditorGUILayout.TextField("Name", _setName);
-            EditorGUILayout.LabelField(_nameValidated ? _nameValid ? "valid" : "not valid" : "");
-            if (GUILayout.Button("Validate")) {
-                _nameValid = !_setName.StartsWith(" ") && !_setName.Equals("") && MegaPint.Settings.materialSets.All(set => !set.materialSetName.Equals(_setName));
+            EditorGUILayout.LabelField(_nameValidated ? _nameValid ? "Valid" : "Not valid" : "", GUILayout.Width(60));
+            if (GUILayout.Button("Validate", GUILayout.Width(60))) {
+                _nameValid = ValidateName();
                 _nameValidated = true;
             }
             EditorGUILayout.EndHorizontal();
@@ -71,7 +73,7 @@ namespace MegaPint.Editor.Utility.MaterialSets {
             else if (_materials.Any(material => material == null)) EditorGUILayout.HelpBox("A material slot is missing a material!", MessageType.Warning);
             else if (_setName.Equals("")) EditorGUILayout.HelpBox("The set needs a name!", MessageType.Warning);
             else if (!_nameValidated) EditorGUILayout.HelpBox("Validate the name before saving!", MessageType.Warning);
-            else if (!_nameValid) EditorGUILayout.HelpBox("There already exists a set with this name!", MessageType.Warning);
+            else if (!_nameValid) EditorGUILayout.HelpBox("There already exists a set with this name! (Validate to check)", MessageType.Warning);
             else {
                 if (GUILayout.Button("Create Material Set", MegaPint.MegaPintGUI.GetStyle("button1"))) {
                     CreateSetAsset();
@@ -92,6 +94,12 @@ namespace MegaPint.Editor.Utility.MaterialSets {
             
             MegaPintMaterialSets.UpdateMaterialSetsTemp();
             Close();
+        }
+
+        private static bool ValidateName() {
+            if (_setName.Equals("")) return false;
+            if (_setName.StartsWith(" ")) return false;
+            return MegaPint.Settings.materialSets.Count <= 0 || MegaPint.Settings.materialSets.All(set => !set.materialSetName.Equals(_setName));
         }
     }
 }
