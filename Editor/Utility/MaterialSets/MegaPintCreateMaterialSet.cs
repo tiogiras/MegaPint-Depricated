@@ -87,8 +87,11 @@ namespace MegaPint.Editor.Utility.MaterialSets {
             var asset = CreateInstance<MegaPintMaterialSet>();
             asset.materialSetName = _setName;
             asset.materials = _materials;
+
+            var path = MegaPintMaterialSets.Path + "/" + _setName + ".asset";
+            AssetDatabase.CreateAsset(asset, path);
+            asset.assetPath = path;
             
-            AssetDatabase.CreateAsset(asset, MegaPintMaterialSets.Path + "/" + _setName + ".asset");
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             

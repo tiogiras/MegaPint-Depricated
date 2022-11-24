@@ -16,6 +16,8 @@ namespace MegaPint.Editor {
         private static MegaPintMenu _activeMenu;
         private static MegaPintMenuEntry _activeMenuEntry;
 
+        private Vector2 _materialSetsScrollPos;
+
         public void DrawCategory(int activeCategory) => categories[activeCategory].Draw(activeCategory);
         
         public string[] GetCategoryNames() {
@@ -265,14 +267,63 @@ namespace MegaPint.Editor {
                                     EditorGUILayout.LabelField("Material Sets", MegaPint.MegaPintGUI.GetStyle("header1"));
                                     MegaPintGUIUtility.GuiLine(3);
                                     EditorGUILayout.Separator();
+                                    
+                                    _materialSetsScrollPos = EditorGUILayout.BeginScrollView(_materialSetsScrollPos, GUIStyle.none, GUI.skin.verticalScrollbar, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
                                     if (MegaPint.Settings.materialSets.Count > 0) {
-                                        foreach (var VARIABLE in MegaPint.Settings.materialSets) {
-                                            EditorGUILayout.LabelField("hi");
+                                        for (var i = 0; i < MegaPint.Settings.materialSets.Count; i++) {
+                                            EditorGUILayout.BeginVertical(MegaPint.MegaPintGUI.GetStyle(i % 2 == 0 ? "bg3" : "bg2"), GUILayout.ExpandWidth(true));
+                                            
+                                            EditorGUILayout.Separator();
+                                            EditorGUILayout.BeginHorizontal();
+                                            MegaPint.Settings.materialSetsFoldouts[i] =
+                                                EditorGUILayout.Foldout(MegaPint.Settings.materialSetsFoldouts[i], MegaPint.Settings.materialSets[i].materialSetName);
+                                                if (GUILayout.Button("Remove", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.Width(75), GUILayout.Height(15)))
+                                                {
+                                                    
+                                                }
+                                            EditorGUILayout.EndHorizontal();
+
+                                            if (!MegaPint.Settings.materialSetsFoldouts[i]) {
+                                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                                EditorGUILayout.EndVertical();
+                                                continue;
+                                            }
+
+                                            var indent = EditorGUI.indentLevel;
+                                            EditorGUI.indentLevel++;
+                                            
+                                            EditorGUILayout.Separator();
+                                            
+                                            var set = MegaPint.Settings.materialSets[i];
+                                            set.materialSetName = EditorGUILayout.TextField("Name", set.materialSetName);
+                                            MegaPintGUIUtility.GuiLine(1, i % 2 == 0 ? 0.15f : 0.3f);
+                                            for (var j = 0; j < set.materials.Count; j++) {
+                                                EditorGUILayout.BeginHorizontal();
+                                                set.materials[j] = (Material)EditorGUILayout.ObjectField("Slot " + (j + 1), set.materials[j], typeof(Material), false);
+                                                if (GUILayout.Button("Remove", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.Width(75), GUILayout.Height(15))) {
+                                                    set.materials.RemoveAt(j);
+                                                    if (set.materials.Count == 0) {
+                                                        Debug.Log("remove set");
+                                                    }
+                                                }
+                                                EditorGUILayout.EndHorizontal();
+                                            }
+
+                                            EditorGUILayout.BeginHorizontal();
+                                            EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                            if (GUILayout.Button("Add Material Slot", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.Height(20), GUILayout.Width(125))) {
+                                                set.materials.Add(null);
+                                            }
+                                            EditorGUILayout.EndHorizontal();
+                                            
+                                            EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                            EditorGUILayout.EndVertical();
+                                            EditorGUI.indentLevel = indent;
                                         }
                                     }
+                                    EditorGUILayout.EndScrollView();
 
-                                    if (GUILayout.Button("Create new Material Set", MegaPint.MegaPintGUI.GetStyle("button1")))
-                                    {
+                                    if (GUILayout.Button("Create new Material Set", MegaPint.MegaPintGUI.GetStyle("button1"))) {
                                         MegaPintCreateMaterialSet.Init();
                                     }
                                     

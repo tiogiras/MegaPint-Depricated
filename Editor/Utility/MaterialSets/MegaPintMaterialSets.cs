@@ -8,6 +8,7 @@ namespace MegaPint.Editor.Utility.MaterialSets {
         public static void UpdateMaterialSetsTemp() {
             var found = Resources.LoadAll("MaterialSets", typeof(MegaPintMaterialSet)).Cast<MegaPintMaterialSet>().ToList();
             MegaPint.Settings.materialSets = found;
+            MegaPint.Settings.materialSetsFoldouts = new bool[found.Count].ToList();
         }
     }
 }
