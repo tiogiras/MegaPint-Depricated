@@ -16,7 +16,7 @@ MonoBehaviour:
   - categoryName: Applications
     menus:
     - menuName: GeoNode
-      hasContent: 1
+      hasContent: 0
       function: 0
       menuEntries: []
   - categoryName: Utility
@@ -26,15 +26,28 @@ MonoBehaviour:
       function: 0
       menuEntries:
       - entryName: Start
+        hasContent: 0
         function: 1
     - menuName: Screenshot
       hasContent: 0
       function: 0
       menuEntries:
       - entryName: Render Camera
+        hasContent: 1
         function: 0
       - entryName: Render Window
+        hasContent: 1
         function: 0
+    - menuName: Material Sets
+      hasContent: 1
+      function: 0
+      menuEntries:
+      - entryName: Edit
+        hasContent: 1
+        function: 2
+      - entryName: Apply
+        hasContent: 1
+        function: 2
   - categoryName: Settings
     menus:
     - menuName: General
@@ -42,8 +55,10 @@ MonoBehaviour:
       function: 0
       menuEntries:
       - entryName: Applications
+        hasContent: 0
         function: 0
       - entryName: Utility
+        hasContent: 0
         function: 0
     - menuName: Contact
       hasContent: 0

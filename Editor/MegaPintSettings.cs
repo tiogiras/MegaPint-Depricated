@@ -1,5 +1,7 @@
 #if UNITY_EDITOR
 
+using System.Collections.Generic;
+using MegaPint.Editor.Utility.MaterialSets;
 using UnityEngine;
 
 namespace MegaPint.Editor {
@@ -17,6 +19,7 @@ namespace MegaPint.Editor {
         [Space, Header("Visible Utility")]
         public bool visibleAutoSave = true;
         public bool visibleScreenshot = true;
+        public bool visibleMaterialSets = true;
         
         [Space, Header("AutoSave - Settings")]
         public int autoSaveIntervalTime = 30;
@@ -30,6 +33,10 @@ namespace MegaPint.Editor {
         public string screenshotSavePath = "";
         public float screenshotStrengthNormal = 1;
         public float screenshotStrengthGlow = .5f;
+
+        [Space, Header("Material Sets - Settings")]
+        public List<MegaPintMaterialSet> materialSets;
+        public List<bool> materialSetsFoldouts;
     }
 }
 
