@@ -17,6 +17,8 @@ namespace MegaPint.Editor {
         private static MegaPintMenuEntry _activeMenuEntry;
 
         private Vector2 _materialSetsScrollPos;
+        private Vector2 _materialSetsScrollPos1;
+        private List<GameObject> _materialSetsSelection;
 
         public void DrawCategory(int activeCategory) => categories[activeCategory].Draw(activeCategory);
         
@@ -339,6 +341,89 @@ namespace MegaPint.Editor {
                                         MegaPintCreateMaterialSet.Init();
                                     }
                                     
+                                    break;
+                                case "Apply":
+                                    EditorGUILayout.Separator();
+                                    EditorGUILayout.LabelField("Material Sets", MegaPint.MegaPintGUI.GetStyle("header1"));
+                                    MegaPintGUIUtility.GuiLine(3);
+                                    EditorGUILayout.Separator();
+                                    
+                                    EditorGUI.indentLevel++;
+                                    EditorGUILayout.LabelField("Selection:", "Objects need any rendering component.");
+                                    EditorGUILayout.LabelField("[Add set]", "Adds the set to the object.");
+                                    EditorGUILayout.LabelField("[Apply]", "Apply set as the current materials.");
+                                    EditorGUI.indentLevel--;
+                                    
+                                    EditorGUILayout.Separator();
+                                    MegaPintGUIUtility.GuiLine(1);
+                                    EditorGUILayout.Separator();
+
+                                    EditorGUILayout.BeginHorizontal();
+                                    if (GUILayout.Button("Update", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.Height(15), GUILayout.Width(75))) {
+                                        _materialSetsSelection = new List<GameObject>();
+                                        foreach (var o in Selection.gameObjects) {
+                                            if (o.GetComponent<MeshRenderer>() != null) {
+                                                _materialSetsSelection.Add(o);
+                                                continue;
+                                            }
+                                            if (o.GetComponent<SkinnedMeshRenderer>() != null) {
+                                                _materialSetsSelection.Add(o);
+                                            }
+                                        }
+                                    }
+                                    EditorGUILayout.LabelField("Selected Renderers:", _materialSetsSelection.Count + "");
+                                    EditorGUILayout.EndHorizontal();
+                                    
+                                    EditorGUILayout.Separator();
+                                    if (_materialSetsSelection.Count <= 0) EditorGUILayout.HelpBox("Nothing selected!", MessageType.Warning);
+                                    else {
+                                        _materialSetsScrollPos1 = EditorGUILayout.BeginScrollView(_materialSetsScrollPos1, GUIStyle.none, GUI.skin.verticalScrollbar, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+
+                                        EditorGUILayout.BeginHorizontal();
+                                        var count = 0;
+                                        for (int i = 0; i < MegaPint.Settings.materialSets.Count; i++) {
+                                            EditorGUILayout.BeginVertical(MegaPint.MegaPintGUI.GetStyle(i % 2 == 0 ? "bg2" : "bg3"));
+                                                EditorGUILayout.LabelField(MegaPint.Settings.materialSets[i].materialSetName);
+                                                EditorGUILayout.BeginHorizontal();
+                                                    if (GUILayout.Button("Add set", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.Height(20), GUILayout.Width(65))) {
+                                                        var newComps = 0;
+                                                        var existComps = 0;
+                                                        foreach (var o in _materialSetsSelection) {
+                                                            MegaPintMaterialSlots comp;
+                                                            if (o.GetComponent<MegaPintMaterialSlots>() == null) {
+                                                                comp = o.AddComponent<MegaPintMaterialSlots>();
+                                                                newComps++;
+                                                            }
+                                                            else {
+                                                                comp = o.GetComponent<MegaPintMaterialSlots>();
+                                                                existComps++;
+                                                            }
+                                                            
+                                                            if (comp == null) continue;
+                                                            if (!comp.materialSets.Contains(MegaPint.Settings.materialSets[i])) comp.materialSets.Add(MegaPint.Settings.materialSets[i]);
+                                                        }
+                                                        Debug.Log("Added set to " + (newComps + existComps) + " components... \n [" + existComps + " existing] [" + newComps + " new]" );
+                                                    }
+                                                    
+                                                    if (GUILayout.Button("Apply", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.Height(20), GUILayout.Width(65)))
+                                                    {
+                                                        
+                                                    }
+                                                EditorGUILayout.EndHorizontal();
+                                            EditorGUILayout.EndVertical();
+
+                                            if (count >= 2) {
+                                                EditorGUILayout.EndHorizontal();
+                                                EditorGUILayout.Separator();
+                                                EditorGUILayout.BeginHorizontal();
+                                                count = 0;
+                                            }
+                                            else count++;
+                                        }
+                                        EditorGUILayout.EndHorizontal();
+                                        EditorGUILayout.EndScrollView();
+                                    }
+
                                     break;
                             }
                             break;

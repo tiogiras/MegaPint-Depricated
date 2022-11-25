@@ -45,6 +45,9 @@ MonoBehaviour:
       - entryName: Edit
         hasContent: 1
         function: 2
+      - entryName: Apply
+        hasContent: 1
+        function: 2
   - categoryName: Settings
     menus:
     - menuName: General

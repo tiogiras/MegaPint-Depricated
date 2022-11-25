@@ -13,24 +13,28 @@ namespace MegaPint.Editor.Utility.MaterialSets {
             if (myTarget.materialSets.Count > 0) {
                 for (var i = 0; i < myTarget.materialSets.Count; i++) {
                     EditorGUILayout.BeginHorizontal();
-                        myTarget.materialSets[i] = (MegaPintMaterialSet)EditorGUILayout.ObjectField("", myTarget.materialSets[i], typeof(MegaPintMaterialSet), false);
-                        if (GUILayout.Button("Remove")) {
-                            myTarget.materialSets.RemoveAt(i);
-                        }
-
+                        EditorGUILayout.LabelField(myTarget.materialSets[i].materialSetName);
+                    
                         if (myTarget.materialSets[i] != null && myTarget.currentMaterialSet != myTarget.materialSets[i]) {
-                            if (GUILayout.Button("Set", GUILayout.MaxWidth(10))) {
+                            if (GUILayout.Button("Set", GUILayout.Width(40))) {
                                 myTarget.currentMaterialSet = myTarget.materialSets[i];
+                                
+                                if (myTarget.gameObject.GetComponent<MeshRenderer>() != null) {
+                                    myTarget.gameObject.GetComponent<MeshRenderer>().sharedMaterials = myTarget.currentMaterialSet.materials.ToArray();
+                                }
+
+                                if (myTarget.gameObject.GetComponent<SkinnedMeshRenderer>() != null) {
+                                    myTarget.gameObject.GetComponent<SkinnedMeshRenderer>().sharedMaterials = myTarget.currentMaterialSet.materials.ToArray();
+                                }
                             }
                         }
-                    EditorGUILayout.EndHorizontal();
+                        
+                        if (GUILayout.Button("Remove", GUILayout.Width(100))) {
+                            myTarget.materialSets.RemoveAt(i);
+                        }
+                        EditorGUILayout.EndHorizontal();
                 }
             }
-            
-            if (GUILayout.Button("Add Material Set")) {
-                myTarget.materialSets.Add(null);
-            }
-            
             EditorGUILayout.EndVertical();
         }
     }
