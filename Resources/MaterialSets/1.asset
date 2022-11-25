@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e9a7a379fcea493ba529d5fa5cafa37b, type: 3}
-  m_Name: Test 1
+  m_Name: 1
   m_EditorClassIdentifier: 
-  materialSetName: Test 1
+  materialSetName: 1
   assetPath: 
   materials:
   - {fileID: 2100000, guid: 8e1caf42c0aea1d45872244c294c9d5f, type: 2}

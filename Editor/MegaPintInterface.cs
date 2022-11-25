@@ -277,25 +277,34 @@ namespace MegaPint.Editor {
                                             EditorGUILayout.BeginHorizontal();
                                             MegaPint.Settings.materialSetsFoldouts[i] =
                                                 EditorGUILayout.Foldout(MegaPint.Settings.materialSetsFoldouts[i], MegaPint.Settings.materialSets[i].materialSetName);
-                                                if (GUILayout.Button("Remove", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.Width(75), GUILayout.Height(15)))
-                                                {
+                                                if (GUILayout.Button("Remove", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.Width(75), GUILayout.Height(15))) {
+                                                    AssetDatabase.DeleteAsset(MegaPint.Settings.materialSets[i].assetPath);
+                                                    AssetDatabase.Refresh();
                                                     
+                                                    MegaPintMaterialSets.UpdateMaterialSetsTemp();
                                                 }
                                             EditorGUILayout.EndHorizontal();
 
-                                            if (!MegaPint.Settings.materialSetsFoldouts[i]) {
-                                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
-                                                EditorGUILayout.EndVertical();
-                                                continue;
+                                            if (i < MegaPint.Settings.materialSetsFoldouts.Count) {
+                                                if (!MegaPint.Settings.materialSetsFoldouts[i]) {
+                                                    EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                                    EditorGUILayout.EndVertical();
+                                                    continue;
+                                                }
                                             }
 
                                             var indent = EditorGUI.indentLevel;
                                             EditorGUI.indentLevel++;
                                             
                                             EditorGUILayout.Separator();
-                                            
+
+                                            if (i >= MegaPint.Settings.materialSets.Count) {
+                                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                                EditorGUILayout.EndVertical();
+                                                continue;
+                                            }
                                             var set = MegaPint.Settings.materialSets[i];
-                                            set.materialSetName = EditorGUILayout.TextField("Name", set.materialSetName);
+                                            //set.materialSetName = EditorGUILayout.TextField("Name", set.materialSetName);
                                             MegaPintGUIUtility.GuiLine(1, i % 2 == 0 ? 0.15f : 0.3f);
                                             for (var j = 0; j < set.materials.Count; j++) {
                                                 EditorGUILayout.BeginHorizontal();
@@ -303,7 +312,10 @@ namespace MegaPint.Editor {
                                                 if (GUILayout.Button("Remove", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.Width(75), GUILayout.Height(15))) {
                                                     set.materials.RemoveAt(j);
                                                     if (set.materials.Count == 0) {
-                                                        Debug.Log("remove set");
+                                                        AssetDatabase.DeleteAsset(set.assetPath);
+                                                        AssetDatabase.Refresh();
+                                                        
+                                                        MegaPintMaterialSets.UpdateMaterialSetsTemp();
                                                     }
                                                 }
                                                 EditorGUILayout.EndHorizontal();
