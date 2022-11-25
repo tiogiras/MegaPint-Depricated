@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿#if UNITY_EDITOR
+
+using System.Linq;
 using UnityEngine;
 
 namespace MegaPint.Editor.Utility.MaterialSets {
@@ -12,3 +14,5 @@ namespace MegaPint.Editor.Utility.MaterialSets {
         }
     }
 }
+
+#endif

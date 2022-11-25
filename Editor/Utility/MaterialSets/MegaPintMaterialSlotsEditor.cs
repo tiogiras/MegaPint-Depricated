@@ -1,4 +1,6 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+
+using UnityEditor;
 using UnityEngine;
 
 namespace MegaPint.Editor.Utility.MaterialSets {
@@ -39,3 +41,5 @@ namespace MegaPint.Editor.Utility.MaterialSets {
         }
     }
 }
+
+#endif

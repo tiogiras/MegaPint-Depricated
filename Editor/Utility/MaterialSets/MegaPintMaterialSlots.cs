@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if UNITY_EDITOR
+
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MegaPint.Editor.Utility.MaterialSets {
@@ -7,3 +9,5 @@ namespace MegaPint.Editor.Utility.MaterialSets {
         public MegaPintMaterialSet currentMaterialSet;
     }
 }
+
+#endif
