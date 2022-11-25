@@ -259,7 +259,22 @@ namespace MegaPint.Editor {
                                 EditorGUILayout.LabelField("Material Sets", MegaPint.MegaPintGUI.GetStyle("header1"));
                                 MegaPintGUIUtility.GuiLine(3);
                                 EditorGUILayout.Separator();
-                                EditorGUILayout.LabelField("INFOOOOOOO LOREM IPSUM", MegaPint.MegaPintGUI.GetStyle("centertext"));
+                                EditorGUILayout.LabelField("With this tool you create material sets", MegaPint.MegaPintGUI.GetStyle("centertext1"));
+                                EditorGUILayout.LabelField("add them to objects and call them to change", MegaPint.MegaPintGUI.GetStyle("centertext1"));
+                                EditorGUILayout.LabelField("from a central overlay.", MegaPint.MegaPintGUI.GetStyle("centertext1"));
+                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                EditorGUILayout.LabelField("The edit tab let's you create new", MegaPint.MegaPintGUI.GetStyle("centertext1"));
+                                EditorGUILayout.LabelField("and edit existing material sets.", MegaPint.MegaPintGUI.GetStyle("centertext1"));
+                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                EditorGUILayout.LabelField("In the apply tab you add the sets", MegaPint.MegaPintGUI.GetStyle("centertext1"));
+                                EditorGUILayout.LabelField("to selected gameObjects in your scene.", MegaPint.MegaPintGUI.GetStyle("centertext1"));
+                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                EditorGUILayout.LabelField("By calling apply on a set will result in", MegaPint.MegaPintGUI.GetStyle("centertext1"));
+                                EditorGUILayout.LabelField("all objects changing, that are selected", MegaPint.MegaPintGUI.GetStyle("centertext1"));
+                                EditorGUILayout.LabelField("and contain the set.", MegaPint.MegaPintGUI.GetStyle("centertext1"));
                                 return;
                             }
 
@@ -405,9 +420,25 @@ namespace MegaPint.Editor {
                                                         Debug.Log("Added set to " + (newComps + existComps) + " components... \n [" + existComps + " existing] [" + newComps + " new]" );
                                                     }
                                                     
-                                                    if (GUILayout.Button("Apply", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.Height(20), GUILayout.Width(65)))
-                                                    {
-                                                        
+                                                    if (GUILayout.Button("Apply", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.Height(20), GUILayout.Width(65))) {
+                                                        var applyCount = 0;
+                                                        foreach (var o in _materialSetsSelection) {
+                                                            if (o.GetComponent<MegaPintMaterialSlots>() == null) continue;
+                                                            var comp = o.GetComponent<MegaPintMaterialSlots>();
+                                                            if (comp.materialSets.Contains(MegaPint.Settings.materialSets[i])) {
+                                                                comp.currentMaterialSet = MegaPint.Settings.materialSets[i];
+                                                                if (o.GetComponent<MeshRenderer>() != null) {
+                                                                    o.GetComponent<MeshRenderer>().sharedMaterials = MegaPint.Settings.materialSets[i].materials.ToArray();
+                                                                }
+
+                                                                if (o.GetComponent<SkinnedMeshRenderer>() != null) {
+                                                                    o.GetComponent<SkinnedMeshRenderer>().sharedMaterials = MegaPint.Settings.materialSets[i].materials.ToArray();
+                                                                }
+
+                                                                applyCount++;
+                                                            }
+                                                        }
+                                                        Debug.Log("Applied [" + MegaPint.Settings.materialSets[i].materialSetName + "] to " + applyCount + " components.");
                                                     }
                                                 EditorGUILayout.EndHorizontal();
                                             EditorGUILayout.EndVertical();
