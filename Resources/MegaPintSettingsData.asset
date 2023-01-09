@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ef0e8f2eaa2b294fb0cdd31e7b5d67b, type: 3}
   m_Name: MegaPintSettingsData
   m_EditorClassIdentifier: 
-  visibleGeoNode: 1
+  visibleGeoNode: 0
   visibleAutoSave: 1
   visibleScreenshot: 1
   visibleMaterialSets: 1
@@ -20,8 +20,8 @@ MonoBehaviour:
   autoSaveAudioWarning: 1
   autoSaveConsoleLog: 1
   autoSaveMode: 0
-  autoSaveDuplicatePath: Assets
-  screenshotSavePath: Assets
+  autoSaveDuplicatePath: 
+  screenshotSavePath: 
   screenshotStrengthNormal: 1
   screenshotStrengthGlow: 0.5
   materialSets: []
