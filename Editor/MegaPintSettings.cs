@@ -37,6 +37,7 @@ namespace MegaPint.Editor {
         [Space, Header("Material Sets - Settings")]
         public List<MegaPintMaterialSet> materialSets;
         public List<bool> materialSetsFoldouts;
+        public string materialSetsSavePath;
     }
 }
 

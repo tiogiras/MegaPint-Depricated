@@ -15,6 +15,7 @@ MonoBehaviour:
   visibleGeoNode: 1
   visibleAutoSave: 1
   visibleScreenshot: 1
+  visibleMaterialSets: 1
   autoSaveIntervalTime: 30
   autoSaveAudioWarning: 1
   autoSaveConsoleLog: 1
@@ -23,3 +24,6 @@ MonoBehaviour:
   screenshotSavePath: Assets
   screenshotStrengthNormal: 1
   screenshotStrengthGlow: 0.5
+  materialSets: []
+  materialSetsFoldouts: 
+  materialSetsSavePath: Assets
