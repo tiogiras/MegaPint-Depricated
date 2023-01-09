@@ -90,7 +90,7 @@ namespace MegaPint.Editor.Utility.MaterialSets {
             asset.materialSetName = _setName;
             asset.materials = _materials;
 
-            var path = MegaPintMaterialSets.Path + "/" + _setName + ".asset";
+            var path = MegaPint.Settings.materialSetsSavePath + "/" + _setName + ".asset";
             AssetDatabase.CreateAsset(asset, path);
             asset.assetPath = path;
             
