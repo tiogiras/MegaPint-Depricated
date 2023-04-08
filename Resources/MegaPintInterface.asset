@@ -14,11 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   categories:
   - categoryName: Applications
-    menus:
-    - menuName: GeoNode
-      hasContent: 0
-      function: 0
-      menuEntries: []
+    menus: []
   - categoryName: Utility
     menus:
     - menuName: AutoSave - Scene
@@ -38,7 +34,7 @@ MonoBehaviour:
       - entryName: Render Window
         hasContent: 1
         function: 0
-    - menuName: Material Sets
+    - menuName: Material Sets [BETA]
       hasContent: 1
       function: 0
       menuEntries:
@@ -48,6 +44,13 @@ MonoBehaviour:
       - entryName: Apply
         hasContent: 1
         function: 2
+    - menuName: Bulk Renaming [BETA]
+      hasContent: 1
+      function: 0
+      menuEntries:
+      - entryName: Command Chain
+        hasContent: 1
+        function: 0
   - categoryName: Settings
     menus:
     - menuName: General

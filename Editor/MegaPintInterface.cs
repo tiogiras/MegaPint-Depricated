@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using MegaPint.Editor.Utility;
 using MegaPint.Editor.Utility.MaterialSets;
 using UnityEditor;
@@ -20,6 +22,11 @@ namespace MegaPint.Editor {
         private Vector2 _materialSetsScrollPos1;
         private List<GameObject> _materialSetsSelection;
 
+        private Vector2 _bulkRenamingScrollPos;
+        private List<GameObject> _bulkRenamingSelectedGameObjects;
+        private List<string> _bulkRenamingSelectedFiles; // PATHS
+        private List<string> _bulkRenamingSelectedFolders; // PATHS
+
         public void DrawCategory(int activeCategory) => categories[activeCategory].Draw(activeCategory);
         
         public string[] GetCategoryNames() {
@@ -32,14 +39,13 @@ namespace MegaPint.Editor {
 
         #region Generic
 
-        [Serializable]
-        public class MegaPintCategory {
+        [Serializable] public class MegaPintCategory {
             public string categoryName;
             public List<MegaPintMenu> menus;
             
             public void Draw(int currentCategoryIndex) {
-                foreach (var menu in menus) {
-                    if (GetMenuVisibility(currentCategoryIndex, menu.menuName)) menu.Draw();
+                foreach (var menu in menus.Where(menu => GetMenuVisibility(currentCategoryIndex, menu.menuName))) {
+                    menu.Draw();
                 }
             }
         }
@@ -78,7 +84,7 @@ namespace MegaPint.Editor {
                 foreach (var entry in menuEntries) {
                     entry.Draw();
                 }
-                EditorGUILayout.Separator();
+                MegaPintGUIUtility.Space(1);
             }
         }
         
@@ -88,14 +94,14 @@ namespace MegaPint.Editor {
             public MegaPintFunctions.MegaPintFunction function;
             
             public void Draw() {
-                if (GUILayout.Button(entryName, MegaPint.MegaPintGUI.GetStyle("menuentrybutton"), GUILayout.ExpandWidth(true))) {
-                    if (function != MegaPintFunctions.MegaPintFunction.None) {
-                        MegaPintFunctions.InvokeFunction(function);
-                        if (!hasContent) return;
-                    }
-                    
-                    ActiveMenuEntry = this;
+                if (!GUILayout.Button(entryName, MegaPint.MegaPintGUI.GetStyle("menuentrybutton"),
+                        GUILayout.ExpandWidth(true))) return;
+                if (function != MegaPintFunctions.MegaPintFunction.None) {
+                    MegaPintFunctions.InvokeFunction(function);
+                    if (!hasContent) return;
                 }
+                    
+                ActiveMenuEntry = this;
             }
         }
 
@@ -110,28 +116,29 @@ namespace MegaPint.Editor {
             switch (activeCategory) {
                 case 0: // Applications
                     switch (ActiveMenu.menuName) {
-                        case "GeoNode":
-                            EditorGUILayout.Separator();
-                            EditorGUILayout.LabelField("GeoNode", MegaPint.MegaPintGUI.GetStyle("header1"));
-                            MegaPintGUIUtility.GuiLine(3);
-                            EditorGUILayout.Separator();
-                            break;
+
                     }
                     break;
                 case 1: // Utility
                     switch (ActiveMenu.menuName) {
                         case "AutoSave - Scene":
-                            EditorGUILayout.Separator();
+                            MegaPintGUIUtility.Space(1);
+                            
                             EditorGUILayout.LabelField("AutoSave", MegaPint.MegaPintGUI.GetStyle("header1"));
                             MegaPintGUIUtility.GuiLine(3);
-                            EditorGUILayout.Separator();
+                            MegaPintGUIUtility.Space(1);
+                            
                             MegaPint.Settings.autoSaveIntervalTime = EditorGUILayout.IntField("Interval Time", MegaPint.Settings.autoSaveIntervalTime);
                             MegaPint.Settings.autoSaveMode = (MegaPintSettings.MegaPintAutoSaveMode)EditorGUILayout.EnumPopup("Save Mode", MegaPint.Settings.autoSaveMode);
+                            
                             if (MegaPint.Settings.autoSaveMode == MegaPintSettings.MegaPintAutoSaveMode.SaveAsDuplicate) {
                                 EditorGUILayout.LabelField("Duplicate Folder", ".../" + MegaPint.Settings.autoSaveDuplicatePath);
+                                
                                 if (MegaPint.Settings.autoSaveDuplicatePath.Equals("")) EditorGUILayout.HelpBox("No Folder Selected", MessageType.Error);
+                               
                                 EditorGUILayout.BeginHorizontal();
-                                    EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                    MegaPintGUIUtility.Space(2);
+                                    
                                     if (GUILayout.Button("Change", MegaPint.MegaPintGUI.GetStyle("button1"))) {
                                         var path = EditorUtility.OpenFolderPanel("Select Folder for Duplicates", "Assets/", "");
                                         if (!path.Equals("")) {
@@ -139,8 +146,8 @@ namespace MegaPint.Editor {
                                             MegaPint.Settings.autoSaveDuplicatePath = path;
                                         }
                                     }
-                                    EditorGUILayout.Separator(); EditorGUILayout.Separator();
-                                    EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                    MegaPintGUIUtility.Space(4);
+                                    
                                 EditorGUILayout.EndHorizontal();
                             }
                             MegaPint.Settings.autoSaveAudioWarning = EditorGUILayout.Toggle("Warning on exit", MegaPint.Settings.autoSaveAudioWarning);
@@ -153,10 +160,12 @@ namespace MegaPint.Editor {
                             
                             switch (ActiveMenuEntry.entryName) {
                                 case "Render Camera":
-                                    EditorGUILayout.Separator();
+                                    MegaPintGUIUtility.Space(1);
+                                    
                                     EditorGUILayout.LabelField("Render Camera", MegaPint.MegaPintGUI.GetStyle("header1"));
                                     MegaPintGUIUtility.GuiLine(3);
-                                    EditorGUILayout.Separator();
+                                    MegaPintGUIUtility.Space(1);
+                                    
                                     GUILayout.Box(MegaPintScreenshot.PreviewTexture, GUILayout.MaxHeight(300), GUILayout.MinHeight(300), GUILayout.ExpandWidth(true));
                                     EditorGUILayout.BeginHorizontal();
                                         MegaPintScreenshot.FileName = EditorGUILayout.TextField("File Name", MegaPintScreenshot.FileName);
@@ -167,27 +176,35 @@ namespace MegaPint.Editor {
                                         }
                                         if (GUILayout.Button("Export", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.MaxWidth(100))) {
                                             if (MegaPintScreenshot.RenderCamera != null) {
-                                                if (MegaPintScreenshot.FileName == null) EditorApplication.Beep();
-                                                else if (MegaPintScreenshot.FileName.Equals("")) EditorApplication.Beep();
-                                                else if (MegaPint.Settings.screenshotSavePath.Equals("")) EditorApplication.Beep();
-                                                else MegaPintScreenshot.RenderImage();
+                                                switch (MegaPintScreenshot.FileName) {
+                                                    case null:
+                                                    case "": EditorApplication.Beep(); break;
+                                                    default: {
+                                                        if (MegaPint.Settings.screenshotSavePath.Equals("")) EditorApplication.Beep();
+                                                        else MegaPintScreenshot.RenderImage();
+                                                        break;
+                                                    }
+                                                }
                                             }else EditorApplication.Beep();
                                         }
                                     EditorGUILayout.EndHorizontal();
-                                    if (MegaPintScreenshot.FileName == null) EditorGUILayout.HelpBox("File Name Required", MessageType.Error);
-                                    else if (MegaPintScreenshot.FileName.Equals("")) EditorGUILayout.HelpBox("File Name Required", MessageType.Error);
-                                    EditorGUILayout.Separator(); EditorGUILayout.Separator();
-                                    EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                    switch (MegaPintScreenshot.FileName) {
+                                        case null:
+                                        case "": EditorGUILayout.HelpBox("File Name Required", MessageType.Error); break;
+                                    }
+                                    MegaPintGUIUtility.Space(4);
+                                    
                                     MegaPintScreenshot.RenderCamera = (Camera) EditorGUILayout.ObjectField("Rendering Camera", MegaPintScreenshot.RenderCamera, typeof(Camera), true);
                                     if (MegaPintScreenshot.RenderCamera == null) EditorGUILayout.HelpBox( "No Rendering Camera selected", MessageType.Error );
                                     MegaPintScreenshot.CurrentResolution = (MegaPintScreenshot.MegaPintScreenshotResolutions)EditorGUILayout.EnumPopup("Resolution", MegaPintScreenshot.CurrentResolution);
                                     if (MegaPintScreenshot.CurrentResolution == MegaPintScreenshot.MegaPintScreenshotResolutions.Custom) {
                                         EditorGUILayout.BeginHorizontal();
-                                        EditorGUILayout.Separator(); EditorGUILayout.Separator();
-                                        EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                        MegaPintGUIUtility.Space(4);
+                                        
                                         MegaPintScreenshot.CustomXRes = EditorGUILayout.IntField("Width", MegaPintScreenshot.CustomXRes);
                                         if (MegaPintScreenshot.CustomXRes <= 0) MegaPintScreenshot.CustomXRes = 1;
-                                        EditorGUILayout.Separator();
+                                        MegaPintGUIUtility.Space(1);
+                                        
                                         MegaPintScreenshot.CustomYRes = EditorGUILayout.IntField("Height", MegaPintScreenshot.CustomYRes);
                                         if (MegaPintScreenshot.CustomYRes <= 0) MegaPintScreenshot.CustomYRes = 1;
                                         EditorGUILayout.EndHorizontal();
@@ -197,7 +214,8 @@ namespace MegaPint.Editor {
                                     EditorGUILayout.LabelField("Output Folder", ".../" + MegaPint.Settings.screenshotSavePath);
                                     if (MegaPint.Settings.screenshotSavePath.Equals("")) EditorGUILayout.HelpBox("No Folder Selected", MessageType.Error);
                                     EditorGUILayout.BeginHorizontal();
-                                        EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                        MegaPintGUIUtility.Space(2);
+                                    
                                         if (GUILayout.Button("Change", MegaPint.MegaPintGUI.GetStyle("button1"))) {
                                             var path = EditorUtility.OpenFolderPanel("Select Output Folder", "Assets/", "");
                                             if (!path.Equals("")) {
@@ -205,15 +223,14 @@ namespace MegaPint.Editor {
                                                 MegaPint.Settings.screenshotSavePath = path;
                                             }
                                         }   
-                                        EditorGUILayout.Separator(); EditorGUILayout.Separator(); 
-                                        EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                        MegaPintGUIUtility.Space(4);
                                     EditorGUILayout.EndHorizontal();
                                     break;
                                 case "Render Window": 
-                                    EditorGUILayout.Separator();
+                                    MegaPintGUIUtility.Space(1);
                                     EditorGUILayout.LabelField("Render Window", MegaPint.MegaPintGUI.GetStyle("header1"));
                                     MegaPintGUIUtility.GuiLine(3);
-                                    EditorGUILayout.Separator();
+                                    MegaPintGUIUtility.Space(1);
                                     GUILayout.Box(MegaPintScreenshot.WindowPreviewTexture, GUILayout.MaxHeight(300), GUILayout.MinHeight(300), GUILayout.ExpandWidth(true));
                                     EditorGUILayout.BeginHorizontal();
                                         MegaPintScreenshot.FileName = EditorGUILayout.TextField("File Name", MegaPintScreenshot.FileName);
@@ -228,8 +245,7 @@ namespace MegaPint.Editor {
                                     EditorGUILayout.EndHorizontal();
                                     if (MegaPintScreenshot.FileName == null) EditorGUILayout.HelpBox("File Name Required", MessageType.Error);
                                     else if (MegaPintScreenshot.FileName.Equals("")) EditorGUILayout.HelpBox("File Name Required", MessageType.Error);
-                                    EditorGUILayout.Separator(); EditorGUILayout.Separator();
-                                    EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                    MegaPintGUIUtility.Space(4);
                                     MegaPintScreenshot.CurrentWindow = (MegaPintScreenshot.MegaPintTargetWindows)EditorGUILayout.EnumPopup("Target", MegaPintScreenshot.CurrentWindow);
                                     if (MegaPintScreenshot.CurrentWindow == MegaPintScreenshot.MegaPintTargetWindows.WindowByName) {
                                         MegaPintScreenshot.WindowName = EditorGUILayout.TextField("Window Name", MegaPintScreenshot.WindowName);
@@ -239,7 +255,7 @@ namespace MegaPint.Editor {
                                     EditorGUILayout.LabelField("Output Folder", ".../" + MegaPint.Settings.screenshotSavePath);
                                     if (MegaPint.Settings.screenshotSavePath.Equals("")) EditorGUILayout.HelpBox("No Folder Selected", MessageType.Error);
                                     EditorGUILayout.BeginHorizontal();
-                                        EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                        MegaPintGUIUtility.Space(2);
                                         if (GUILayout.Button("Change", MegaPint.MegaPintGUI.GetStyle("button1"))) {
                                             var path = EditorUtility.OpenFolderPanel("Select Output Folder", "Assets/", "");
                                             if (!path.Equals("")) {
@@ -247,42 +263,37 @@ namespace MegaPint.Editor {
                                                 MegaPint.Settings.screenshotSavePath = path;
                                             }
                                         }   
-                                        EditorGUILayout.Separator(); EditorGUILayout.Separator(); 
-                                        EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                        MegaPintGUIUtility.Space(4);
                                     EditorGUILayout.EndHorizontal();
                                     break;
                             }
                             break;
-                        case "Material Sets":
+                        case "Material Sets [BETA]":
                             if (ActiveMenuEntry == null) {
-                                EditorGUILayout.Separator();
+                                MegaPintGUIUtility.Space(1);
                                 EditorGUILayout.LabelField("Material Sets", MegaPint.MegaPintGUI.GetStyle("header1"));
                                 MegaPintGUIUtility.GuiLine(3);
-                                EditorGUILayout.Separator();
+                                MegaPintGUIUtility.Space(1);
                                 EditorGUILayout.LabelField("With this tool you create material sets", MegaPint.MegaPintGUI.GetStyle("centertext1"));
                                 EditorGUILayout.LabelField("add them to objects and call them to change", MegaPint.MegaPintGUI.GetStyle("centertext1"));
                                 EditorGUILayout.LabelField("from a central overlay.", MegaPint.MegaPintGUI.GetStyle("centertext1"));
-                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
-                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                MegaPintGUIUtility.Space(4);
                                 EditorGUILayout.LabelField("The edit tab let's you create new", MegaPint.MegaPintGUI.GetStyle("centertext1"));
                                 EditorGUILayout.LabelField("and edit existing material sets.", MegaPint.MegaPintGUI.GetStyle("centertext1"));
-                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
-                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                MegaPintGUIUtility.Space(4);
                                 EditorGUILayout.LabelField("In the apply tab you add the sets", MegaPint.MegaPintGUI.GetStyle("centertext1"));
                                 EditorGUILayout.LabelField("to selected gameObjects in your scene.", MegaPint.MegaPintGUI.GetStyle("centertext1"));
-                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
-                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                MegaPintGUIUtility.Space(4);
                                 EditorGUILayout.LabelField("By calling apply on a set will result in", MegaPint.MegaPintGUI.GetStyle("centertext1"));
                                 EditorGUILayout.LabelField("all objects changing, that are selected", MegaPint.MegaPintGUI.GetStyle("centertext1"));
                                 EditorGUILayout.LabelField("and contain the set.", MegaPint.MegaPintGUI.GetStyle("centertext1"));
                                 
-                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
-                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                MegaPintGUIUtility.Space(4);
                                 
                                 EditorGUILayout.LabelField("MaterialSet Folder", ".../" + MegaPint.Settings.materialSetsSavePath);
                                 if (MegaPint.Settings.materialSetsSavePath.Equals("")) EditorGUILayout.HelpBox("No Folder Selected", MessageType.Error);
                                 EditorGUILayout.BeginHorizontal();
-                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                MegaPintGUIUtility.Space(2);
                                 if (GUILayout.Button("Change", MegaPint.MegaPintGUI.GetStyle("button1"))) {
                                     var path = EditorUtility.OpenFolderPanel("Select MaterialSet Folder", "Assets/", "");
                                     if (!path.Equals("")) {
@@ -290,8 +301,7 @@ namespace MegaPint.Editor {
                                         MegaPint.Settings.materialSetsSavePath = path;
                                     }
                                 }   
-                                EditorGUILayout.Separator(); EditorGUILayout.Separator(); 
-                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                MegaPintGUIUtility.Space(4);
                                 EditorGUILayout.EndHorizontal();
                                 return;
                             }
@@ -302,17 +312,17 @@ namespace MegaPint.Editor {
                                         EditorGUILayout.HelpBox("No MaterialSet folder selected", MessageType.Error);
                                     }
                                     else {
-                                        EditorGUILayout.Separator();
+                                        MegaPintGUIUtility.Space(1);
                                         EditorGUILayout.LabelField("Material Sets", MegaPint.MegaPintGUI.GetStyle("header1"));
                                         MegaPintGUIUtility.GuiLine(3);
-                                        EditorGUILayout.Separator();
+                                        MegaPintGUIUtility.Space(1);
                                     
                                         _materialSetsScrollPos = EditorGUILayout.BeginScrollView(_materialSetsScrollPos, GUIStyle.none, GUI.skin.verticalScrollbar, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
                                         if (MegaPint.Settings.materialSets.Count > 0) {
                                             for (var i = 0; i < MegaPint.Settings.materialSets.Count; i++) {
                                                 EditorGUILayout.BeginVertical(MegaPint.MegaPintGUI.GetStyle(i % 2 == 0 ? "bg3" : "bg2"), GUILayout.ExpandWidth(true));
                                             
-                                                EditorGUILayout.Separator();
+                                                MegaPintGUIUtility.Space(1);
                                                 EditorGUILayout.BeginHorizontal();
                                                 MegaPint.Settings.materialSetsFoldouts[i] =
                                                     EditorGUILayout.Foldout(MegaPint.Settings.materialSetsFoldouts[i], MegaPint.Settings.materialSets[i].materialSetName);
@@ -326,7 +336,7 @@ namespace MegaPint.Editor {
 
                                                 if (i < MegaPint.Settings.materialSetsFoldouts.Count) {
                                                     if (!MegaPint.Settings.materialSetsFoldouts[i]) {
-                                                        EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                                        MegaPintGUIUtility.Space(2);
                                                         EditorGUILayout.EndVertical();
                                                         continue;
                                                     }
@@ -335,10 +345,10 @@ namespace MegaPint.Editor {
                                                 var indent = EditorGUI.indentLevel;
                                                 EditorGUI.indentLevel++;
                                             
-                                                EditorGUILayout.Separator();
+                                                MegaPintGUIUtility.Space(1);
 
                                                 if (i >= MegaPint.Settings.materialSets.Count) {
-                                                    EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                                    MegaPintGUIUtility.Space(2);
                                                     EditorGUILayout.EndVertical();
                                                     continue;
                                                 }
@@ -361,13 +371,13 @@ namespace MegaPint.Editor {
                                                 }
 
                                                 EditorGUILayout.BeginHorizontal();
-                                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                                MegaPintGUIUtility.Space(2);
                                                 if (GUILayout.Button("Add Material Slot", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.Height(20), GUILayout.Width(125))) {
                                                     set.materials.Add(null);
                                                 }
                                                 EditorGUILayout.EndHorizontal();
                                             
-                                                EditorGUILayout.Separator(); EditorGUILayout.Separator();
+                                                MegaPintGUIUtility.Space(2);
                                                 EditorGUILayout.EndVertical();
                                                 EditorGUI.indentLevel = indent;
                                             }
@@ -386,11 +396,11 @@ namespace MegaPint.Editor {
                                         EditorGUILayout.HelpBox("No MaterialSet folder selected", MessageType.Error);
                                     }
                                     else {
-                                        EditorGUILayout.Separator();
+                                        MegaPintGUIUtility.Space(1);
                                         EditorGUILayout.LabelField("Material Sets",
                                             MegaPint.MegaPintGUI.GetStyle("header1"));
                                         MegaPintGUIUtility.GuiLine(3);
-                                        EditorGUILayout.Separator();
+                                        MegaPintGUIUtility.Space(1);
 
                                         EditorGUI.indentLevel++;
                                         EditorGUILayout.LabelField("Selection:",
@@ -399,22 +409,24 @@ namespace MegaPint.Editor {
                                         EditorGUILayout.LabelField("[Apply]", "Apply set as the current materials.");
                                         EditorGUI.indentLevel--;
 
-                                        EditorGUILayout.Separator();
+                                        MegaPintGUIUtility.Space(1);
                                         MegaPintGUIUtility.GuiLine(1);
-                                        EditorGUILayout.Separator();
+                                        MegaPintGUIUtility.Space(1);
 
                                         EditorGUILayout.BeginHorizontal();
                                         if (GUILayout.Button("Update", MegaPint.MegaPintGUI.GetStyle("button1"),
                                                 GUILayout.Height(15), GUILayout.Width(75))) {
                                             _materialSetsSelection = new List<GameObject>();
-                                            foreach (var o in Selection.gameObjects) {
-                                                if (o.GetComponent<MeshRenderer>() != null) {
-                                                    _materialSetsSelection.Add(o);
-                                                    continue;
-                                                }
+                                            if (Selection.gameObjects.Length > 0) {
+                                                foreach (var o in Selection.gameObjects) {
+                                                    if (o.GetComponent<MeshRenderer>() != null) {
+                                                        _materialSetsSelection.Add(o);
+                                                        continue;
+                                                    }
 
-                                                if (o.GetComponent<SkinnedMeshRenderer>() != null) {
-                                                    _materialSetsSelection.Add(o);
+                                                    if (o.GetComponent<SkinnedMeshRenderer>() != null) {
+                                                        _materialSetsSelection.Add(o);
+                                                    }
                                                 }
                                             }
                                         }
@@ -423,7 +435,7 @@ namespace MegaPint.Editor {
                                             _materialSetsSelection.Count + "");
                                         EditorGUILayout.EndHorizontal();
 
-                                        EditorGUILayout.Separator();
+                                        MegaPintGUIUtility.Space(1);
                                         if (_materialSetsSelection.Count <= 0)
                                             EditorGUILayout.HelpBox("Nothing selected!", MessageType.Warning);
                                         else {
@@ -434,7 +446,7 @@ namespace MegaPint.Editor {
 
                                             EditorGUILayout.BeginHorizontal();
                                             var count = 0;
-                                            for (int i = 0; i < MegaPint.Settings.materialSets.Count; i++) {
+                                            for (var i = 0; i < MegaPint.Settings.materialSets.Count; i++) {
                                                 EditorGUILayout.BeginVertical(
                                                     MegaPint.MegaPintGUI.GetStyle(i % 2 == 0 ? "bg2" : "bg3"));
                                                 EditorGUILayout.LabelField(MegaPint.Settings.materialSets[i]
@@ -502,7 +514,7 @@ namespace MegaPint.Editor {
 
                                                 if (count >= 2) {
                                                     EditorGUILayout.EndHorizontal();
-                                                    EditorGUILayout.Separator();
+                                                    MegaPintGUIUtility.Space(1);
                                                     EditorGUILayout.BeginHorizontal();
                                                     count = 0;
                                                 }
@@ -516,13 +528,146 @@ namespace MegaPint.Editor {
                                     break;
                             }
                             break;
+                        case "Bulk Renaming [BETA]":
+                            if (ActiveMenuEntry == null) {
+                                MegaPintGUIUtility.Space(1);
+                                EditorGUILayout.LabelField("Bulk Renaming", MegaPint.MegaPintGUI.GetStyle("header1"));
+                                MegaPintGUIUtility.GuiLine(3);
+                                MegaPintGUIUtility.Space(1);
+                                // TODO description
+                                return;
+                            }
+
+                            switch (ActiveMenuEntry.entryName) {
+                                case "Command Chain":
+                                    EditorGUILayout.BeginHorizontal();
+                                    
+                                    EditorGUILayout.BeginVertical(GUILayout.MaxWidth(10), GUILayout.ExpandHeight(true));
+                                    MegaPintGUIUtility.Space(1);
+                                    EditorGUILayout.EndVertical();
+                                    
+                                    EditorGUILayout.BeginVertical(GUILayout.MaxWidth(250), GUILayout.ExpandHeight(true));
+                                    
+                                    MegaPintGUIUtility.Space(1);
+                                        
+                                    EditorGUILayout.BeginHorizontal(MegaPint.MegaPintGUI.GetStyle("bg2"), GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+                                    EditorGUILayout.BeginVertical(GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+                                    
+                                    EditorGUILayout.LabelField("Selection", MegaPint.MegaPintGUI.GetStyle("centertext"));
+                                    MegaPintGUIUtility.GuiLine(3, .25f);
+                                    EditorGUILayout.BeginHorizontal();
+                                    if (GUILayout.Button("Add Files")) {
+                                        var folderPath = EditorUtility.OpenFolderPanel("Select Folder with files", "Assets", "");
+                                        var list = Directory.GetFiles(folderPath + "/", "*", SearchOption.TopDirectoryOnly);
+                                        var listCleaned = list.Where(s => !s.Contains(".meta")).ToList();
+
+                                        _bulkRenamingSelectedFiles ??= new List<string>();
+                                        _bulkRenamingSelectedFiles.AddRange(listCleaned);
+                                        _bulkRenamingSelectedFiles = MegaPintBulkRenaming.RemoveDuplicates(_bulkRenamingSelectedFiles);
+                                    }
+
+                                    if (GUILayout.Button("Add Folder")) {
+                                        var folderPath = EditorUtility.OpenFolderPanel("Select Folder", "Assets", "");
+                                        
+                                        _bulkRenamingSelectedFolders ??= new List<string>();
+                                        _bulkRenamingSelectedFolders.Add(folderPath);
+                                        _bulkRenamingSelectedFolders = MegaPintBulkRenaming.RemoveDuplicates(_bulkRenamingSelectedFolders);
+                                    }
+
+                                    if (GUILayout.Button("Clear")) {
+                                        _bulkRenamingSelectedGameObjects?.Clear();
+                                        _bulkRenamingSelectedFiles?.Clear();
+                                        _bulkRenamingSelectedFolders?.Clear();
+                                    }
+                                    
+                                    EditorGUILayout.EndHorizontal();
+                                    
+                                    if (GUILayout.Button("Add selected GameObjects")) {
+                                        _bulkRenamingSelectedGameObjects ??= new List<GameObject>();
+                                        _bulkRenamingSelectedGameObjects.AddRange(Selection.gameObjects);
+                                        _bulkRenamingSelectedGameObjects = MegaPintBulkRenaming.RemoveDuplicates(_bulkRenamingSelectedGameObjects);
+                                    }
+                                    
+                                    MegaPintGUIUtility.GuiLine(3, .25f);
+
+                                    _bulkRenamingScrollPos = GUILayout.BeginScrollView(_bulkRenamingScrollPos, GUIStyle.none, GUI.skin.verticalScrollbar);
+                                    
+                                    EditorGUILayout.LabelField("GameObjects", MegaPint.MegaPintGUI.GetStyle("centertext1"));
+                                    if (_bulkRenamingSelectedGameObjects is { Count: > 0 }) {
+                                        var removes = _bulkRenamingSelectedGameObjects.Where(MegaPintBulkRenaming.DrawGameObjectEntry).ToList();
+                                        if (removes.Count > 0) {
+                                            foreach (var remove in removes) {
+                                                _bulkRenamingSelectedGameObjects.Remove(remove);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        EditorGUILayout.LabelField("None");
+                                    }
+                                    MegaPintGUIUtility.GuiLine(2, .25f);
+                                    MegaPintGUIUtility.Space(2);
+                                    
+                                    EditorGUILayout.LabelField("Files", MegaPint.MegaPintGUI.GetStyle("centertext1"));
+                                    if (_bulkRenamingSelectedFiles is { Count: > 0 }) {
+                                        var removes = _bulkRenamingSelectedFiles.Where(MegaPintBulkRenaming.DrawFileEntry).ToList();
+                                        if (removes.Count > 0) {
+                                            foreach (var remove in removes) {
+                                                _bulkRenamingSelectedFiles.Remove(remove);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        EditorGUILayout.LabelField("None");
+                                    }
+                                    MegaPintGUIUtility.GuiLine(2, .25f);
+                                    MegaPintGUIUtility.Space(2);
+                                    
+                                    EditorGUILayout.LabelField("Folders", MegaPint.MegaPintGUI.GetStyle("centertext1"));
+                                    if (_bulkRenamingSelectedFolders is { Count: > 0 }) {
+                                        var removes = _bulkRenamingSelectedFolders.Where(MegaPintBulkRenaming.DrawFolderEntry).ToList();
+                                        if (removes.Count > 0) {
+                                            foreach (var remove in removes) {
+                                                _bulkRenamingSelectedFolders.Remove(remove);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        EditorGUILayout.LabelField("None");
+                                    }
+                                    MegaPintGUIUtility.GuiLine(2, .25f);
+                                    MegaPintGUIUtility.Space(2);
+                                    
+                                    EditorGUILayout.EndScrollView();
+                                    
+                                    EditorGUILayout.EndVertical();
+                                    EditorGUILayout.EndHorizontal();
+                                        
+                                    MegaPintGUIUtility.Space(1);
+                                    
+                                    EditorGUILayout.EndVertical();
+                                    
+                                    EditorGUILayout.BeginVertical(GUILayout.MaxWidth(10), GUILayout.ExpandHeight(true));
+                                    MegaPintGUIUtility.Space(1);
+                                    EditorGUILayout.EndVertical();
+                                    
+                                    EditorGUILayout.BeginVertical(GUILayout.ExpandHeight(true));
+                                    EditorGUILayout.LabelField("Hello World");
+                                    EditorGUILayout.EndVertical();
+                                    EditorGUILayout.EndHorizontal();
+                                    break;
+                            }
+                            
+                            break;
                     }
                     break;
                 case 2: // Settings
                     switch (ActiveMenu.menuName) {
                         case "General":
                             if (ActiveMenuEntry == null) {
-                                EditorGUILayout.Separator();
+                                MegaPintGUIUtility.Space(1);
                                 EditorGUILayout.LabelField("General", MegaPint.MegaPintGUI.GetStyle("header1"));
                                 MegaPintGUIUtility.GuiLine(3);
                                 return;
@@ -530,36 +675,38 @@ namespace MegaPint.Editor {
 
                             switch (ActiveMenuEntry.entryName) {
                                 case "Applications":
-                                    EditorGUILayout.Separator();
+                                    MegaPintGUIUtility.Space(1);
                                     EditorGUILayout.LabelField("Applications - Settings", MegaPint.MegaPintGUI.GetStyle("header1"));
                                     MegaPintGUIUtility.GuiLine(3);
-                                    EditorGUILayout.Separator();
-                                    EditorGUILayout.LabelField("Choosen applications are displayed in the applications-menu.", MegaPint.MegaPintGUI.GetStyle("centertext"));
-                                    EditorGUILayout.Separator(); EditorGUILayout.Separator(); EditorGUILayout.Separator();
-                                    MegaPint.Settings.visibleGeoNode = EditorGUILayout.Toggle("GeoNode",MegaPint.Settings.visibleGeoNode, MegaPint.MegaPintGUI.toggle);
+                                    MegaPintGUIUtility.Space(1);
+                                    EditorGUILayout.LabelField("Chosen applications are displayed in the applications-menu.", MegaPint.MegaPintGUI.GetStyle("centertext"));
+                                    MegaPintGUIUtility.Space(3);
+                                    // MegaPint.Settings.visibleGeoNode = EditorGUILayout.Toggle("GeoNode",MegaPint.Settings.visibleGeoNode, MegaPint.MegaPintGUI.toggle);
 
                                     break;
                                 case "Utility":
-                                    EditorGUILayout.Separator();
+                                    MegaPintGUIUtility.Space(1);
                                     EditorGUILayout.LabelField("Utility - Settings", MegaPint.MegaPintGUI.GetStyle("header1"));
                                     MegaPintGUIUtility.GuiLine(3);
-                                    EditorGUILayout.Separator();
-                                    EditorGUILayout.LabelField("Choosen utilities are displayed in the utility-menu.", MegaPint.MegaPintGUI.GetStyle("centertext"));
-                                    EditorGUILayout.Separator(); EditorGUILayout.Separator(); EditorGUILayout.Separator();
-                                    MegaPint.Settings.visibleAutoSave = EditorGUILayout.Toggle("AutoSave - Scene",MegaPint.Settings.visibleAutoSave, MegaPint.MegaPintGUI.toggle);
-                                    MegaPint.Settings.visibleScreenshot = EditorGUILayout.Toggle("Screenshot",MegaPint.Settings.visibleScreenshot, MegaPint.MegaPintGUI.toggle);
-                                    MegaPint.Settings.visibleMaterialSets = EditorGUILayout.Toggle("Material Sets",MegaPint.Settings.visibleMaterialSets, MegaPint.MegaPintGUI.toggle);
+                                    MegaPintGUIUtility.Space(1);
+                                    EditorGUILayout.LabelField("Chosen utilities are displayed in the utility-menu.", MegaPint.MegaPintGUI.GetStyle("centertext"));
+                                    MegaPintGUIUtility.Space(3);
+                                    MegaPint.Settings.visibleAutoSave = EditorGUILayout.Toggle("AutoSave - Scene", MegaPint.Settings.visibleAutoSave, MegaPint.MegaPintGUI.toggle);
+                                    MegaPint.Settings.visibleScreenshot = EditorGUILayout.Toggle("Screenshot", MegaPint.Settings.visibleScreenshot, MegaPint.MegaPintGUI.toggle);
+                                    MegaPint.Settings.visibleMaterialSets = EditorGUILayout.Toggle("Material Sets [BETA]", MegaPint.Settings.visibleMaterialSets, MegaPint.MegaPintGUI.toggle);
+                                    MegaPint.Settings.visibleBulkRenaming = EditorGUILayout.Toggle("Bulk Renaming [BETA]", MegaPint.Settings.visibleBulkRenaming, MegaPint.MegaPintGUI.toggle);
+                                    break;
                                     break;
                             }
                             break;
                         case "Contact":
-                            EditorGUILayout.Separator();
+                            MegaPintGUIUtility.Space(1);
                             EditorGUILayout.LabelField("Contact", MegaPint.MegaPintGUI.GetStyle("header1"));
                             MegaPintGUIUtility.GuiLine(3);
-                            EditorGUILayout.Separator();
+                            MegaPintGUIUtility.Space(1);
                             EditorGUILayout.LabelField("This is a work-in-progress project and will be updated regulary.", MegaPint.MegaPintGUI.GetStyle("centertext"));
                             EditorGUILayout.LabelField("Currently developed by Niklas Räder (Tiogiras).", MegaPint.MegaPintGUI.GetStyle("centertext"));
-                            EditorGUILayout.Separator();
+                            MegaPintGUIUtility.Space(1);
                             EditorGUILayout.LabelField("You can contact me on any platform listed below.", MegaPint.MegaPintGUI.GetStyle("centertext"));
                             EditorGUILayout.LabelField("Discord: Tiogiras#0666", MegaPint.MegaPintGUI.GetStyle("centertext"));
                             EditorGUILayout.LabelField("Mail: tiogiras@gmail.com", MegaPint.MegaPintGUI.GetStyle("centertext"));
@@ -582,7 +729,8 @@ namespace MegaPint.Editor {
                     switch (menuName) {
                         case "AutoSave - Scene": return MegaPint.Settings.visibleAutoSave;
                         case "Screenshot": return MegaPint.Settings.visibleScreenshot;
-                        case "Material Sets": return MegaPint.Settings.visibleMaterialSets;
+                        case "Material Sets [BETA]": return MegaPint.Settings.visibleMaterialSets;
+                        case "Bulk Renaming [BETA]": return MegaPint.Settings.visibleBulkRenaming;
                     }
                     break;
                 case 2: // Settings

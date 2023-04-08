@@ -21,6 +21,12 @@ namespace MegaPint.Editor {
             EditorGUI.DrawRect(rect, new Color ( colorValue,colorValue,colorValue, 1 ) );
             EditorGUILayout.Separator(  );
         }
+
+        public static void Space(int height) {
+            for (var i = 0; i < height; i++) {
+                EditorGUILayout.Separator();
+            }
+        }
     }
 }
 

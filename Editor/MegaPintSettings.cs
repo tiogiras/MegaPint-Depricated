@@ -14,12 +14,13 @@ namespace MegaPint.Editor {
     public class MegaPintSettings : ScriptableObject {
         [Space, Header("Settings")] 
         [Space, Header("Visible Applications")]
-        public bool visibleGeoNode = true;
+        public bool visibleGeoNode = false;
         
         [Space, Header("Visible Utility")]
         public bool visibleAutoSave = true;
         public bool visibleScreenshot = true;
         public bool visibleMaterialSets = true;
+        public bool visibleBulkRenaming = true;
         
         [Space, Header("AutoSave - Settings")]
         public int autoSaveIntervalTime = 30;
