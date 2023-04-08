@@ -26,12 +26,13 @@ namespace MegaPint.Editor {
         public List<MegaPintBulkRenaming.MegaPintRenameCommand> commandChainRemove;
         public MegaPintBulkRenaming.MegaPintRenameCommand moveUp;
         public MegaPintBulkRenaming.MegaPintRenameCommand moveDown;
+        
+        public List<GameObject> _bulkRenamingSelectedGameObjects;
+        public List<string> _bulkRenamingSelectedFiles; // PATHS
+        public List<string> _bulkRenamingSelectedFolders; // PATHS
 
         private Vector2 _bulkRenamingScrollPos;
         private Vector2 _bulkRenamingScrollPos1;
-        private List<GameObject> _bulkRenamingSelectedGameObjects;
-        private List<string> _bulkRenamingSelectedFiles; // PATHS
-        private List<string> _bulkRenamingSelectedFolders; // PATHS
 
         public void DrawCategory(int activeCategory) => categories[activeCategory].Draw(activeCategory);
         
@@ -566,15 +567,49 @@ namespace MegaPint.Editor {
                                         var folderPath = EditorUtility.OpenFolderPanel("Select Folder with files", "Assets", "");
                                         var list = Directory.GetFiles(folderPath + "/", "*", SearchOption.TopDirectoryOnly);
                                         var listCleaned = list.Where(s => !s.Contains(".meta")).ToList();
+                                        var listFinal = new List<string>();
+
+                                        foreach (var item in listCleaned) {
+                                            var str = item;
+                                            var args = str.Split("/");
+                                            var index = 0;
+
+                                            for (var j = 0; j < args.Length; j++) {
+                                                var s = args[j];
+                                                if (s.Contains("Assets")) index = j;
+                                            }
+
+                                            str = "";
+                                            for (var j = index; j < args.Length; j++) {
+                                                str += $"{args[j]}/";
+                                            }
+
+                                            str = str.Remove(str.Length - 1, 1);
+                                            listFinal.Add(str);
+                                        }
 
                                         _bulkRenamingSelectedFiles ??= new List<string>();
-                                        _bulkRenamingSelectedFiles.AddRange(listCleaned);
+                                        _bulkRenamingSelectedFiles.AddRange(listFinal);
                                         _bulkRenamingSelectedFiles = MegaPintBulkRenaming.RemoveDuplicates(_bulkRenamingSelectedFiles);
                                     }
 
                                     if (GUILayout.Button("Add Folder")) {
                                         var folderPath = EditorUtility.OpenFolderPanel("Select Folder", "Assets", "");
+                                        var args = folderPath.Split("/");
+                                        var index = 0;
                                         
+                                        for (var i = 0; i < args.Length; i++) {
+                                            var s = args[i];
+                                            if (s.Contains("Assets")) index = i;
+                                        }
+
+                                        folderPath = "";
+                                        for (var i = index; i < args.Length; i++) {
+                                            folderPath += $"{args[i]}/";
+                                        }
+
+                                        folderPath = folderPath.Remove(folderPath.Length - 1, 1);
+
                                         _bulkRenamingSelectedFolders ??= new List<string>();
                                         _bulkRenamingSelectedFolders.Add(folderPath);
                                         _bulkRenamingSelectedFolders = MegaPintBulkRenaming.RemoveDuplicates(_bulkRenamingSelectedFolders);
@@ -757,7 +792,6 @@ namespace MegaPint.Editor {
                                     MegaPint.Settings.visibleScreenshot = EditorGUILayout.Toggle("Screenshot", MegaPint.Settings.visibleScreenshot, MegaPint.MegaPintGUI.toggle);
                                     MegaPint.Settings.visibleMaterialSets = EditorGUILayout.Toggle("Material Sets [BETA]", MegaPint.Settings.visibleMaterialSets, MegaPint.MegaPintGUI.toggle);
                                     MegaPint.Settings.visibleBulkRenaming = EditorGUILayout.Toggle("Bulk Renaming [BETA]", MegaPint.Settings.visibleBulkRenaming, MegaPint.MegaPintGUI.toggle);
-                                    break;
                                     break;
                             }
                             break;

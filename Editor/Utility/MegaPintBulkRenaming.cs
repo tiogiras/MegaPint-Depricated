@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.Windows;
 
 namespace MegaPint.Editor.Utility {
     public class MegaPintBulkRenaming : MonoBehaviour {
@@ -197,9 +198,42 @@ namespace MegaPint.Editor.Utility {
                 EditorGUILayout.EndHorizontal();
             }
 
-            public void Execute(List<GameObject> bulkRenamingSelectedGameObjects, List<string> bulkRenamingSelectedFiles, List<string> bulkRenamingSelectedFolders)
-            {
-                
+            public void Execute(List<GameObject> gameObjects, List<string> files, List<string> folders) {
+                switch (function) {
+                    case MegaPintRenamingCommandFunction.SetTo:
+                        foreach (var o in gameObjects) {
+                            o.name = _setToNewName;
+                        }
+
+                        for (var i = 0; i < files.Count; i++) {
+                            var file = files[i];
+                            var args = file.Split("/");
+                            var newName = file.Replace(args[^1].Split(".")[0], _setToNewName);
+                            AssetDatabase.MoveAsset(file, newName);
+                            MegaPint.Interface._bulkRenamingSelectedFiles[files.IndexOf(file)] = newName;
+                        }
+
+                        for (var i = 0; i < folders.Count; i++) {
+                            var folder = folders[i];
+                            var args = folder.Split("/");
+                            var newName = folder.Replace(args[^1], _setToNewName);
+                            AssetDatabase.MoveAsset(folder, newName);
+                            MegaPint.Interface._bulkRenamingSelectedFolders[folders.IndexOf(folder)] = newName;
+                        }
+
+                        break;
+                    case MegaPintRenamingCommandFunction.Remove:
+                        break;
+                    case MegaPintRenamingCommandFunction.RemoveAt:
+                        break;
+                    case MegaPintRenamingCommandFunction.Replace:
+                        break;
+                    case MegaPintRenamingCommandFunction.Insert:
+                        break;
+                    case MegaPintRenamingCommandFunction.Index:
+                        break;
+                    default: throw new ArgumentOutOfRangeException();
+                }
             }
         }
     }
