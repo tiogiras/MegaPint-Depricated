@@ -27,6 +27,12 @@ namespace MegaPint.Editor {
                 EditorGUILayout.Separator();
             }
         }
+
+        public static void SpaceVert(int width) {
+            EditorGUILayout.BeginVertical(GUILayout.MaxWidth(width), GUILayout.ExpandHeight(true));
+            Space(1);
+            EditorGUILayout.EndVertical();
+        }
     }
 }
 

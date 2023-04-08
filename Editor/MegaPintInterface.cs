@@ -22,7 +22,13 @@ namespace MegaPint.Editor {
         private Vector2 _materialSetsScrollPos1;
         private List<GameObject> _materialSetsSelection;
 
+        public List<MegaPintBulkRenaming.MegaPintRenameCommand> commandChain;
+        public List<MegaPintBulkRenaming.MegaPintRenameCommand> commandChainRemove;
+        public MegaPintBulkRenaming.MegaPintRenameCommand moveUp;
+        public MegaPintBulkRenaming.MegaPintRenameCommand moveDown;
+
         private Vector2 _bulkRenamingScrollPos;
+        private Vector2 _bulkRenamingScrollPos1;
         private List<GameObject> _bulkRenamingSelectedGameObjects;
         private List<string> _bulkRenamingSelectedFiles; // PATHS
         private List<string> _bulkRenamingSelectedFolders; // PATHS
@@ -633,10 +639,7 @@ namespace MegaPint.Editor {
                                             }
                                         }
                                     }
-                                    else
-                                    {
-                                        EditorGUILayout.LabelField("None");
-                                    }
+                                    else EditorGUILayout.LabelField("None");
                                     MegaPintGUIUtility.GuiLine(2, .25f);
                                     MegaPintGUIUtility.Space(2);
                                     
@@ -654,7 +657,65 @@ namespace MegaPint.Editor {
                                     EditorGUILayout.EndVertical();
                                     
                                     EditorGUILayout.BeginVertical(GUILayout.ExpandHeight(true));
-                                    EditorGUILayout.LabelField("Hello World");
+                                    MegaPintGUIUtility.Space(1);
+                                    EditorGUILayout.LabelField("Command Chain", MegaPint.MegaPintGUI.GetStyle("header1"));
+                                    MegaPintGUIUtility.GuiLine(3, .15f);
+                                    
+                                    _bulkRenamingScrollPos1 = GUILayout.BeginScrollView(_bulkRenamingScrollPos1, GUIStyle.none, GUI.skin.verticalScrollbar);
+
+                                    foreach (var command in commandChain) {
+                                        command.DrawContent();
+                                        MegaPintGUIUtility.Space(1);
+                                    }
+                                    
+                                    if (commandChainRemove.Count > 0 && commandChain.Count > 1) {
+                                        foreach (var remove in commandChainRemove) {
+                                            commandChain.Remove(remove);
+                                        }
+                                    }
+                                    
+                                    commandChainRemove?.Clear();
+
+                                    if (moveUp != null) {
+                                        var originalIndex = commandChain.IndexOf(moveUp);
+                                        if (originalIndex > 0) {
+                                            var targetIndex = originalIndex--;
+                                            (commandChain[targetIndex], commandChain[originalIndex]) = (commandChain[originalIndex], commandChain[targetIndex]);
+                                        }
+                                        
+                                        moveUp = null;
+                                    }
+                                    
+                                    if (moveDown != null) {
+                                        var originalIndex = commandChain.IndexOf(moveDown);
+                                        if (originalIndex < commandChain.Count - 1) {
+                                            var targetIndex = originalIndex++;
+                                            (commandChain[targetIndex], commandChain[originalIndex]) = (commandChain[originalIndex], commandChain[targetIndex]);
+                                        }
+                                        
+                                        moveDown = null;
+                                    }
+
+                                    EditorGUILayout.BeginHorizontal();
+                                    
+                                    if (GUILayout.Button("Clear", MegaPint.MegaPintGUI.GetStyle("button1"), GUILayout.MaxWidth(100))) {
+                                        commandChain = new List<MegaPintBulkRenaming.MegaPintRenameCommand>{new ()};
+                                    }
+                                    
+                                    if (GUILayout.Button("Add Command", MegaPint.MegaPintGUI.GetStyle("button1"))) {
+                                        commandChain.Add(new MegaPintBulkRenaming.MegaPintRenameCommand());
+                                    }
+                                    
+                                    EditorGUILayout.EndHorizontal();
+                                    
+                                    if (GUILayout.Button("Execute Command Chain", MegaPint.MegaPintGUI.GetStyle("button1"))) {
+                                        foreach (var command in commandChain) {
+                                            command.Execute(_bulkRenamingSelectedGameObjects, _bulkRenamingSelectedFiles, _bulkRenamingSelectedFolders);
+                                        }
+                                    }
+
+                                    EditorGUILayout.EndScrollView();
+                                    
                                     EditorGUILayout.EndVertical();
                                     EditorGUILayout.EndHorizontal();
                                     break;
@@ -670,6 +731,7 @@ namespace MegaPint.Editor {
                                 MegaPintGUIUtility.Space(1);
                                 EditorGUILayout.LabelField("General", MegaPint.MegaPintGUI.GetStyle("header1"));
                                 MegaPintGUIUtility.GuiLine(3);
+                                MegaPint.Settings.warnOnPreviewToolUse = EditorGUILayout.Toggle("Preview Tool Warning", MegaPint.Settings.warnOnPreviewToolUse, MegaPint.MegaPintGUI.toggle);
                                 return;
                             }
 

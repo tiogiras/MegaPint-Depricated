@@ -13,8 +13,10 @@ namespace MegaPint.Editor {
     
     public class MegaPintSettings : ScriptableObject {
         [Space, Header("Settings")] 
+        public bool warnOnPreviewToolUse = true;
+
         [Space, Header("Visible Applications")]
-        public bool visibleGeoNode = false;
+        public bool visibleGeoNode;
         
         [Space, Header("Visible Utility")]
         public bool visibleAutoSave = true;

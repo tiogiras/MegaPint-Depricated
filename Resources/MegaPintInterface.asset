@@ -50,7 +50,7 @@ MonoBehaviour:
       menuEntries:
       - entryName: Command Chain
         hasContent: 1
-        function: 0
+        function: 3
   - categoryName: Settings
     menus:
     - menuName: General
@@ -67,3 +67,4 @@ MonoBehaviour:
       hasContent: 0
       function: 0
       menuEntries: []
+  commandChain: []

@@ -8,7 +8,7 @@ namespace MegaPint.Editor {
     public class MegaPintFunctions : MonoBehaviour {
 
         public enum MegaPintFunction {
-            None, AutoSave, UpdateMaterialSetsTemp
+            None, AutoSave, UpdateMaterialSetsTemp, InitializeChainWhenNull
         }
         
         public static void InvokeFunction(MegaPintFunction function) {
@@ -16,6 +16,7 @@ namespace MegaPint.Editor {
                 case MegaPintFunction.None: break;
                 case MegaPintFunction.AutoSave: MegaPintAutoSave.Init(); break;
                 case MegaPintFunction.UpdateMaterialSetsTemp: MegaPintMaterialSets.UpdateMaterialSetsTemp(); break;
+                case MegaPintFunction.InitializeChainWhenNull: MegaPintBulkRenaming.InitializeChainWhenNull(); break;
                 default:return;
             }
         }
