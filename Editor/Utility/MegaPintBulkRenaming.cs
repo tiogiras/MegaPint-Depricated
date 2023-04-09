@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.Windows;
+using Object = UnityEngine.Object;
 
 namespace MegaPint.Editor.Utility {
     public class MegaPintBulkRenaming : MonoBehaviour {
@@ -78,7 +79,9 @@ namespace MegaPint.Editor.Utility {
 
         public enum MegaPintRenamingCommandFunction { SetTo, Remove, RemoveAt, Replace, Insert, Index }
 
-        [Serializable] public class MegaPintRenameCommand {
+        [Serializable]
+        public class MegaPintRenameCommand
+        {
             public MegaPintRenamingCommandFunction function;
 
             private string _setToNewName;
@@ -88,113 +91,136 @@ namespace MegaPint.Editor.Utility {
             private string _replaceNew;
             private int _insertIndex;
             private string _insertString;
-            
-            private enum MegaPintIndexPosition { End, Start }
+
+            private enum MegaPintIndexPosition
+            {
+                End,
+                Start
+            }
+
             private MegaPintIndexPosition _indexPosition;
-            private enum MegaPintIndexMode { NumbersUp, NumbersDown, AlphabeticalUp, AlphabeticalDown }
+
+            private enum MegaPintIndexMode
+            {
+                NumbersUp,
+                NumbersDown,
+                AlphabeticalUp,
+                AlphabeticalDown
+            }
+
             private MegaPintIndexMode _indexMode;
             private string _indexPrefix = "%%";
             private string _indexFormat = "(%%)";
 
-            public void DrawContent() {
-                var height = function switch {
+            public void DrawContent()
+            {
+                var height = function switch
+                {
                     MegaPintRenamingCommandFunction.Replace or MegaPintRenamingCommandFunction.Insert => 120,
                     MegaPintRenamingCommandFunction.Index => 260,
                     _ => 100
                 };
 
                 EditorGUILayout.BeginHorizontal(MegaPint.MegaPintGUI.GetStyle("bg2"), GUILayout.MaxHeight(height));
-                
+
                 MegaPintGUIUtility.SpaceVert(1);
-                
+
                 EditorGUILayout.BeginVertical();
 
                 MegaPintGUIUtility.Space(1);
                 function = (MegaPintRenamingCommandFunction)EditorGUILayout.EnumPopup("Function", function);
 
-                switch (function) {
+                switch (function)
+                {
                     case MegaPintRenamingCommandFunction.SetTo:
                         EditorGUILayout.HelpBox("Fully change the string to the new string", MessageType.Info);
                         MegaPintGUIUtility.Space(1);
 
                         _setToNewName = EditorGUILayout.TextField("New string", _setToNewName);
                         break;
-                    case MegaPintRenamingCommandFunction.Remove: 
+                    case MegaPintRenamingCommandFunction.Remove:
                         EditorGUILayout.HelpBox("Remove a certain string", MessageType.Info);
                         MegaPintGUIUtility.Space(1);
 
                         _removeRemoveStr = EditorGUILayout.TextField("Remove string", _removeRemoveStr);
                         break;
-                    case MegaPintRenamingCommandFunction.RemoveAt: 
+                    case MegaPintRenamingCommandFunction.RemoveAt:
                         EditorGUILayout.HelpBox("Remove the char at a certain index", MessageType.Info);
                         MegaPintGUIUtility.Space(1);
 
                         _removeAtIndex = EditorGUILayout.IntField("Index", _removeAtIndex);
                         break;
-                    case MegaPintRenamingCommandFunction.Replace: 
+                    case MegaPintRenamingCommandFunction.Replace:
                         EditorGUILayout.HelpBox("Replace all current sequences with the new strings", MessageType.Info);
                         MegaPintGUIUtility.Space(1);
 
                         _replaceCurrent = EditorGUILayout.TextField("Current", _replaceCurrent);
                         _replaceNew = EditorGUILayout.TextField("New", _replaceNew);
-                        break; 
+                        break;
                     case MegaPintRenamingCommandFunction.Insert:
                         EditorGUILayout.HelpBox("Insert a string at a certain index", MessageType.Info);
                         MegaPintGUIUtility.Space(1);
 
                         _insertIndex = EditorGUILayout.IntField("Index", _insertIndex);
                         _insertString = EditorGUILayout.TextField("Inserted string", _insertString);
-                        break; 
-                    case MegaPintRenamingCommandFunction.Index: 
+                        break;
+                    case MegaPintRenamingCommandFunction.Index:
                         EditorGUILayout.HelpBox("Index all selection based on the specified format", MessageType.Info);
                         MegaPintGUIUtility.Space(1);
-                        
-                        _indexPosition = (MegaPintIndexPosition)EditorGUILayout.EnumPopup("Positioning", _indexPosition);
+
+                        _indexPosition =
+                            (MegaPintIndexPosition)EditorGUILayout.EnumPopup("Positioning", _indexPosition);
                         _indexMode = (MegaPintIndexMode)EditorGUILayout.EnumPopup("Mode", _indexMode);
-                        
+
                         MegaPintGUIUtility.Space(1);
-                        
+
                         if (_indexPrefix.Equals("")) EditorGUILayout.HelpBox("No Prefix specified", MessageType.Error);
                         else EditorGUILayout.HelpBox($"Prefix = {_indexPrefix}", MessageType.Info);
-                        
-                        if (!_indexFormat.Contains(_indexPrefix) || _indexPrefix.Equals("")) EditorGUILayout.HelpBox("Prefix not found in format", MessageType.Error);
+
+                        if (!_indexFormat.Contains(_indexPrefix) || _indexPrefix.Equals(""))
+                            EditorGUILayout.HelpBox("Prefix not found in format", MessageType.Error);
                         else EditorGUILayout.HelpBox("Prefix detected", MessageType.Info);
-                        
+
                         MegaPintGUIUtility.Space(1);
-                        
+
                         _indexPrefix = EditorGUILayout.TextField("Prefix", _indexPrefix);
                         _indexFormat = EditorGUILayout.TextField("Format", _indexFormat);
                         break;
                     default: throw new ArgumentOutOfRangeException();
                 }
-                
+
                 EditorGUILayout.EndVertical();
 
                 MegaPintGUIUtility.SpaceVert(1);
-                
-                EditorGUILayout.BeginVertical(MegaPint.MegaPintGUI.GetStyle("bg3"), GUILayout.MaxWidth(1), GUILayout.ExpandHeight(true));
+
+                EditorGUILayout.BeginVertical(MegaPint.MegaPintGUI.GetStyle("bg3"), GUILayout.MaxWidth(1),
+                    GUILayout.ExpandHeight(true));
                 MegaPintGUIUtility.Space(1);
                 EditorGUILayout.EndVertical();
-                
+
                 MegaPintGUIUtility.SpaceVert(1);
-                
+
                 EditorGUILayout.BeginVertical(GUILayout.MaxWidth(25));
                 MegaPintGUIUtility.Space(1);
-                if (GUILayout.Button("<-", GUILayout.MaxWidth(25))) {
+                if (GUILayout.Button("<-", GUILayout.MaxWidth(25)))
+                {
                     MegaPint.Interface.moveUp = this;
                 }
-                
-                if (GUILayout.Button("-", GUILayout.MaxWidth(25))) {
+
+                if (GUILayout.Button("-", GUILayout.MaxWidth(25)))
+                {
                     MegaPint.Interface.commandChainRemove.Add(this);
                 }
-                
-                if (GUILayout.Button("->", GUILayout.MaxWidth(25))) {
+
+                if (GUILayout.Button("->", GUILayout.MaxWidth(25)))
+                {
                     MegaPint.Interface.moveDown = this;
                 }
+
                 EditorGUILayout.EndVertical();
-                
+
                 MegaPintGUIUtility.SpaceVert(1);
-                
+
                 EditorGUILayout.EndHorizontal();
             }
 
@@ -202,25 +228,18 @@ namespace MegaPint.Editor.Utility {
                 switch (function) {
                     case MegaPintRenamingCommandFunction.SetTo:
                         foreach (var o in gameObjects) {
-                            o.name = _setToNewName;
+                            SetGameObjectName(o, _setToNewName);
                         }
 
                         for (var i = 0; i < files.Count; i++) {
                             var file = files[i];
-                            var args = file.Split("/");
-                            var newName = file.Replace(args[^1].Split(".")[0], _setToNewName);
-                            AssetDatabase.MoveAsset(file, newName);
-                            MegaPint.Interface._bulkRenamingSelectedFiles[files.IndexOf(file)] = newName;
+                            SetFileName(file, files.IndexOf(file), _setToNewName);
                         }
 
                         for (var i = 0; i < folders.Count; i++) {
                             var folder = folders[i];
-                            var args = folder.Split("/");
-                            var newName = folder.Replace(args[^1], _setToNewName);
-                            AssetDatabase.MoveAsset(folder, newName);
-                            MegaPint.Interface._bulkRenamingSelectedFolders[folders.IndexOf(folder)] = newName;
+                            SetFolderName(folder, folders.IndexOf(folder), _setToNewName);
                         }
-
                         break;
                     case MegaPintRenamingCommandFunction.Remove:
                         break;
@@ -234,6 +253,31 @@ namespace MegaPint.Editor.Utility {
                         break;
                     default: throw new ArgumentOutOfRangeException();
                 }
+            }
+
+            private void SetGameObjectName(Object o, string newName) => o.name = newName;
+
+            private void SetFileName(string fileName, int index, string newName) {
+                Debug.Log(fileName);
+                var args = fileName.Split("/");
+                var result = "";
+                for (var i = 0; i < args.Length - 1; i++) {
+                    result += $"{args[i]}/";
+                }
+
+                Debug.Log(args[^1]);
+                result += $"{newName}.{args[^1].Split(".")[1]}";
+                
+                AssetDatabase.MoveAsset(fileName, result);
+                MegaPint.Interface._bulkRenamingSelectedFiles[index] = result;
+                Debug.Log(result);
+            }
+
+            private void SetFolderName(string folderName, int index, string newName) {
+                var args = folderName.Split("/");
+                var result = folderName.Replace(args[^1], newName);
+                AssetDatabase.MoveAsset(folderName, result);
+                MegaPint.Interface._bulkRenamingSelectedFolders[index] = result;
             }
         }
     }
