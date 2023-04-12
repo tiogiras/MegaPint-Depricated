@@ -5,9 +5,6 @@ using System.Text;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.Windows;
-using Object = UnityEngine.Object;
 
 namespace MegaPint.Editor.Utility {
     public class MegaPintBulkRenaming : MonoBehaviour {
@@ -23,35 +20,69 @@ namespace MegaPint.Editor.Utility {
             return value;
         }
         
-        public static bool DrawFileEntry(string path) {
-            if (path == "") return true;
+        public static bool DrawFileEntry(MegaPintAsset asset) {
+            if (asset == null) return true;
             
             var value = false;
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("X", GUILayout.MaxWidth(20))) value = true;
-
-            var args = path.Split("/");
-            var name = args[^1].Split(".")[0];
-            
-            EditorGUILayout.LabelField(name);
+            EditorGUILayout.LabelField(asset.ShortName);
             EditorGUILayout.EndHorizontal();
             return value;
         }
         
-        public static bool DrawFolderEntry(string path) {
-            if (path == "") return true;
+        public static bool DrawFolderEntry(MegaPintAsset asset) {
+            if (asset == null) return true;
             
             var value = false;
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("X", GUILayout.MaxWidth(20))) value = true;
-
-            var args = path.Split("/");
-
-            EditorGUILayout.LabelField(args[^1]);
+            EditorGUILayout.LabelField(asset.ShortName);
             EditorGUILayout.EndHorizontal();
             return value;
         }
-        
+
+        public class MegaPintAsset {
+            public string MetaPath;
+            public string AssetPath;
+            public string ShortName;
+            public string Ending;
+        }
+
+        public static MegaPintAsset LoadAssetAtPath(string path) {
+            if (path.Equals("")) throw new ArgumentException("Path cannot be null");
+            var args = path.Split("/").ToList();
+            
+            var index = -1;
+            foreach (var arg in args.Where(arg => arg.Contains("Assets"))) {
+                index = args.IndexOf(arg);
+                break;
+            }
+            if (index < 0) throw new ArgumentException($"File outside the project: {path}");
+            
+            var assetPath = "";
+            for (var i = index; i < args.Count; i++) {
+                assetPath += $"/{args[i]}";
+            }
+            assetPath = assetPath.Remove(0, 1);
+
+            var loadedObj = AssetDatabase.LoadMainAssetAtPath(assetPath);
+            if (loadedObj == null) throw new NullReferenceException($"No asset found at: {assetPath}");
+
+            Debug.Log(args[^1]);
+            var shortName = args[^1].Contains(".") ? args[^1].Split(".")[0] : args[^1];
+            var ending = args[^1].Contains(".") ? $".{args[^1].Split(".")[1]}" : "";
+
+            Debug.Log($"Added Asset: \n MetaPath: {path} \n AssetPath: {assetPath} \n Ending: {ending} \n ShortName: {shortName}");
+            
+            return new MegaPintAsset {
+                MetaPath = path,
+                AssetPath = assetPath,
+                Ending = ending,
+                ShortName = shortName
+            };
+        }
+
         public static List<GameObject> RemoveDuplicates(IEnumerable<GameObject> objs) {
             var newList = new List<GameObject>();
             foreach (var o in objs.Where(o => !newList.Contains(o))) {
@@ -61,12 +92,12 @@ namespace MegaPint.Editor.Utility {
             return newList;
         }
         
-        public static List<string> RemoveDuplicates(IEnumerable<string> objs) {
-            var newList = new List<string>();
-            foreach (var o in objs.Where(o => !newList.Contains(o))) {
-                newList.Add(o);
+        public static List<MegaPintAsset> RemoveDuplicates(IEnumerable<MegaPintAsset> objs) {
+            var newList = new List<MegaPintAsset>();
+            foreach (var asset in objs) {
+                if (newList.Contains(asset)) continue;
+                newList.Add(asset);
             }
-
             return newList;
         }
 
@@ -95,16 +126,14 @@ namespace MegaPint.Editor.Utility {
             private int _insertIndex;
             private string _insertString;
 
-            private enum MegaPintIndexPosition
-            {
+            private enum MegaPintIndexPosition {
                 End,
                 Start
             }
 
             private MegaPintIndexPosition _indexPosition;
 
-            private enum MegaPintIndexMode
-            {
+            private enum MegaPintIndexMode {
                 NumbersUp,
                 NumbersDown,
                 AlphabeticalUp,
@@ -231,104 +260,118 @@ namespace MegaPint.Editor.Utility {
                 EditorGUILayout.EndHorizontal();
             }
 
-            public void Execute(List<GameObject> gameObjects, List<string> files, List<string> folders, bool finalStep) {
+            public void Execute(bool finalStep) {
                 switch (function) {
                     case MegaPintRenamingCommandFunction.SetTo:
-                        foreach (var o in gameObjects) {
+                        foreach (var o in MegaPint.Interface.bulkRenamingSelectedGameObjects) {
                             SetGameObjectName(o, _setToNewName);
                         }
 
-                        for (var i = 0; i < files.Count; i++) {
-                            var file = files[i];
-                            SetFileName(file, i, _setToNewName, finalStep);
+                        if (MegaPint.Interface.bulkRenamingSelectedFiles != null) {
+                            for (var i = 0; i < MegaPint.Interface.bulkRenamingSelectedFiles.Count; i++) {
+                                var file = MegaPint.Interface.bulkRenamingSelectedFiles[i];
+                                MegaPint.Interface.bulkRenamingSelectedFiles[i] = SetFileName(file, _setToNewName, finalStep, false);
+                            }   
                         }
 
-                        for (var i = 0; i < folders.Count; i++) {
-                            var folder = folders[i];
-                            SetFolderName(folder, i, _setToNewName, files, finalStep);
+                        if (MegaPint.Interface.bulkRenamingSelectedFolders != null) {
+                            for (var i = 0; i < MegaPint.Interface.bulkRenamingSelectedFolders.Count; i++) {
+                                var folder = MegaPint.Interface.bulkRenamingSelectedFolders[i];
+                                MegaPint.Interface.bulkRenamingSelectedFolders[i] = SetFolderName(folder, _setToNewName, finalStep);
+                            }   
                         }
                         break;
                     case MegaPintRenamingCommandFunction.Remove:
-                        foreach (var o in gameObjects) {
+                        foreach (var o in MegaPint.Interface.bulkRenamingSelectedGameObjects) {
                             var newName = o.name.Replace(_removeRemoveStr, "");
                             SetGameObjectName(o, newName);
                         }
 
-                        for (var i = 0; i < files.Count; i++) {
-                            var file = files[i];
-                            var fileName = GetCurrentFileName(file);
-                            var newName = fileName.Replace(_removeRemoveStr, "");
-                            SetFileName(file, i, newName, finalStep);
+                        if (MegaPint.Interface.bulkRenamingSelectedFiles != null) {
+                            for (var i = 0; i < MegaPint.Interface.bulkRenamingSelectedFiles.Count; i++) {
+                                var file = MegaPint.Interface.bulkRenamingSelectedFiles[i];
+                                var newName = file.ShortName.Replace(_removeRemoveStr, "");
+                                MegaPint.Interface.bulkRenamingSelectedFiles[i] = SetFileName(file, newName, finalStep, false);
+                            }   
                         }
-                        
-                        for (var i = 0; i < folders.Count; i++) {
-                            var folder = folders[i];
-                            var folderName = GetCurrentFolderName(folder);
-                            var newName = folderName.Replace(_removeRemoveStr, "");
-                            SetFolderName(folder, i, newName, files, finalStep);
+
+                        if (MegaPint.Interface.bulkRenamingSelectedFolders != null) {
+                            for (var i = 0; i < MegaPint.Interface.bulkRenamingSelectedFolders.Count; i++) {
+                                var folder = MegaPint.Interface.bulkRenamingSelectedFolders[i];
+                                var newName = folder.ShortName.Replace(_removeRemoveStr, "");
+                                MegaPint.Interface.bulkRenamingSelectedFolders[i] = SetFolderName(folder, newName, finalStep);
+                            }   
                         }
                         break;
                     case MegaPintRenamingCommandFunction.RemoveAt:
-                        foreach (var o in gameObjects) {
+                        foreach (var o in MegaPint.Interface.bulkRenamingSelectedGameObjects) {
                             var newName = o.name.Remove(_removeAtIndex, _removeAtLength);
                             SetGameObjectName(o, newName);
                         }
                         
-                        for (var i = 0; i < files.Count; i++) {
-                            var file = files[i];
-                            var fileName = GetCurrentFileName(file);
-                            var newName = fileName.Remove(_removeAtIndex, _removeAtLength);
-                            SetFileName(file, i, newName, finalStep);
+                        if (MegaPint.Interface.bulkRenamingSelectedFiles != null) {
+                            for (var i = 0; i < MegaPint.Interface.bulkRenamingSelectedFiles.Count; i++) {
+                                var file = MegaPint.Interface.bulkRenamingSelectedFiles[i];
+                                var newName = file.ShortName.Remove(_removeAtIndex, _removeAtLength);
+                                MegaPint.Interface.bulkRenamingSelectedFiles[i] = SetFileName(file, newName, finalStep, false);
+                            }   
                         }
-                        
-                        for (var i = 0; i < folders.Count; i++) {
-                            var folder = folders[i];
-                            var folderName = GetCurrentFolderName(folder);
-                            var newName = folderName.Remove(_removeAtIndex, _removeAtLength);
-                            SetFolderName(folder, i, newName, files, finalStep);
+
+                        if (MegaPint.Interface.bulkRenamingSelectedFolders != null) {
+                            for (var i = 0; i < MegaPint.Interface.bulkRenamingSelectedFolders.Count; i++) {
+                                var folder = MegaPint.Interface.bulkRenamingSelectedFolders[i];
+                                var newName = folder.ShortName.Remove(_removeAtIndex, _removeAtLength);
+                                MegaPint.Interface.bulkRenamingSelectedFolders[i] = SetFolderName(folder, newName, finalStep);
+                            }   
                         }
                         break;
                     case MegaPintRenamingCommandFunction.Replace:
-                        foreach (var o in gameObjects) {
+                        foreach (var o in MegaPint.Interface.bulkRenamingSelectedGameObjects) {
                             var newName = o.name.Replace(_replaceCurrent, _replaceNew);
                             SetGameObjectName(o, newName);
                         }
                         
-                        for (var i = 0; i < files.Count; i++) {
-                            var file = files[i];
-                            var fileName = GetCurrentFileName(file);
-                            var newName = fileName.Replace(_replaceCurrent, _replaceNew);
-                            SetFileName(file, i, newName, finalStep);
+                        if (MegaPint.Interface.bulkRenamingSelectedFiles != null) {
+                            for (var i = 0; i < MegaPint.Interface.bulkRenamingSelectedFiles.Count; i++) {
+                                var file = MegaPint.Interface.bulkRenamingSelectedFiles[i];
+                                var newName = file.ShortName.Replace(_replaceCurrent, _replaceNew);
+                                MegaPint.Interface.bulkRenamingSelectedFiles[i] = SetFileName(file, newName, finalStep, false);
+                            }   
                         }
-                        
-                        for (var i = 0; i < folders.Count; i++) {
-                            var folder = folders[i];
-                            var folderName = GetCurrentFolderName(folder);
-                            var newName = folderName.Replace(_replaceCurrent, _replaceNew);
-                            SetFolderName(folder, i, newName, files, finalStep);
+
+                        if (MegaPint.Interface.bulkRenamingSelectedFolders != null) {
+                            for (var i = 0; i < MegaPint.Interface.bulkRenamingSelectedFolders.Count; i++) {
+                                var folder = MegaPint.Interface.bulkRenamingSelectedFolders[i];
+                                var newName = folder.ShortName.Replace(_replaceCurrent, _replaceNew);
+                                MegaPint.Interface.bulkRenamingSelectedFolders[i] = SetFolderName(folder, newName, finalStep);
+                            }   
                         }
                         break;
                     case MegaPintRenamingCommandFunction.Insert:
-                        foreach (var o in gameObjects) {
+                        foreach (var o in MegaPint.Interface.bulkRenamingSelectedGameObjects) {
                             if (_insertIndex > o.name.Length - 1) continue;
                             var newName = o.name.Insert(_insertIndex, _insertString);
                             SetGameObjectName(o, newName);
                         }
-                        
-                        for (var i = 0; i < files.Count; i++) {
-                            var file = files[i];
-                            var fileName = GetCurrentFileName(file);
-                            if (_insertIndex > fileName.Length - 1) continue;
-                            var newName = fileName.Insert(_insertIndex, _insertString);
-                            SetFileName(file, i, newName, finalStep);
+
+                        if (MegaPint.Interface.bulkRenamingSelectedFiles != null) {
+                            for (var i = 0; i < MegaPint.Interface.bulkRenamingSelectedFiles.Count; i++) {
+                                var file = MegaPint.Interface.bulkRenamingSelectedFiles[i];
+                                var fileName = file.ShortName;
+                                if (_insertIndex > fileName.Length - 1) continue;
+                                var newName = fileName.Insert(_insertIndex, _insertString);
+                                MegaPint.Interface.bulkRenamingSelectedFiles[i] = SetFileName(file, newName, finalStep, false);
+                            }   
                         }
-                        
-                        for (var i = 0; i < folders.Count; i++) {
-                            var folder = folders[i];
-                            var folderName = GetCurrentFolderName(folder);
-                            if (_insertIndex > folderName.Length - 1) continue;
-                            var newName = folderName.Insert(_insertIndex, _insertString);
-                            SetFolderName(folder, i, newName, files, finalStep);
+
+                        if (MegaPint.Interface.bulkRenamingSelectedFolders != null) {
+                            for (var i = 0; i < MegaPint.Interface.bulkRenamingSelectedFolders.Count; i++) {
+                                var folder = MegaPint.Interface.bulkRenamingSelectedFolders[i];
+                                var folderName = folder.ShortName;
+                                if (_insertIndex > folderName.Length - 1) continue;
+                                var newName = folderName.Insert(_insertIndex, _insertString);
+                                MegaPint.Interface.bulkRenamingSelectedFolders[i] = SetFolderName(folder, newName, finalStep);
+                            }   
                         }
                         break;
                     case MegaPintRenamingCommandFunction.Index:
@@ -336,7 +379,7 @@ namespace MegaPint.Editor.Utility {
                         var individualNames = new List<string>();
                         var individualNamesCount = new List<int>();
 
-                        foreach (var o in gameObjects) {
+                        foreach (var o in MegaPint.Interface.bulkRenamingSelectedGameObjects) {
                             if (individualNames.Contains(o.name)) {
                                 var index = individualNames.IndexOf(o.name);
                                 individualNamesCount[index]++;
@@ -346,9 +389,9 @@ namespace MegaPint.Editor.Utility {
                                 individualNamesCount.Add(1);
                             }
                         }
-
-                        for (var i = 0; i < gameObjects.Count; i++) {
-                            var o = gameObjects[i];
+                        
+                        for (var i = 0; i < MegaPint.Interface.bulkRenamingSelectedGameObjects.Count; i++) {
+                            var o = MegaPint.Interface.bulkRenamingSelectedGameObjects[i];
                             var index = _indexMode switch {
                                 MegaPintIndexMode.NumbersUp => $"{i + 1}",
                                 MegaPintIndexMode.NumbersDown => $"{individualNamesCount[individualNames.IndexOf(o.name)] - i}",
@@ -363,69 +406,71 @@ namespace MegaPint.Editor.Utility {
                             SetGameObjectName(o, newName);
                         }
 
-                        individualNames = new List<string>();
-                        individualNamesCount = new List<int>();
+                        if (MegaPint.Interface.bulkRenamingSelectedFiles != null) {
+                            individualNames = new List<string>();
+                            individualNamesCount = new List<int>();
                         
-                        foreach (var fileName in files.Select(GetCurrentFileName)) {
-                            if (individualNames.Contains(fileName)) {
-                                var index = individualNames.IndexOf(fileName);
-                                individualNamesCount[index]++;
+                            foreach (var file in MegaPint.Interface.bulkRenamingSelectedFiles) {
+                                if (individualNames.Contains(file.ShortName)) {
+                                    var index = individualNames.IndexOf(file.ShortName);
+                                    individualNamesCount[index]++;
+                                }
+                                else {
+                                    individualNames.Add(file.ShortName);
+                                    individualNamesCount.Add(1);
+                                }
                             }
-                            else {
-                                individualNames.Add(fileName);
-                                individualNamesCount.Add(1);
-                            }
-                        }
                         
-                        for (var i = 0; i < files.Count; i++) {
-                            var file = files[i];
-                            var fileName = GetCurrentFileName(file);
-                            
-                            var index = _indexMode switch {
-                                MegaPintIndexMode.NumbersUp => $"{i + 1}",
-                                MegaPintIndexMode.NumbersDown => $"{individualNamesCount[individualNames.IndexOf(fileName)] - i}",
-                                MegaPintIndexMode.AlphabeticalUp => $"{NumberToAlphabetical(i + 1)}",
-                                MegaPintIndexMode.AlphabeticalDown => $"{NumberToAlphabetical(individualNamesCount[individualNames.IndexOf(fileName)] - i)}",
-                                _ => ""
-                            };
+                            for (var i = 0; i < MegaPint.Interface.bulkRenamingSelectedFiles.Count; i++) {
+                                var file = MegaPint.Interface.bulkRenamingSelectedFiles[i];
 
-                            var formattedIndex = _indexFormat.Replace(_indexPrefix, index);
-                            var newName = (_indexPosition == MegaPintIndexPosition.Start ? formattedIndex : "") +
-                                          fileName + (_indexPosition == MegaPintIndexPosition.End ? formattedIndex : "");
-                            SetFileName(file, i, newName, finalStep);
-                        }
-                        
-                        individualNames = new List<string>();
-                        individualNamesCount = new List<int>();
-                        
-                        foreach (var folderName in folders.Select(GetCurrentFolderName)) {
-                            if (individualNames.Contains(folderName)) {
-                                var index = individualNames.IndexOf(folderName);
-                                individualNamesCount[index]++;
-                            }
-                            else {
-                                individualNames.Add(folderName);
-                                individualNamesCount.Add(1);
-                            }
-                        }
-                        
-                        for (var i = 0; i < folders.Count; i++) {
-                            var folder = folders[i];
-                            var folderName = GetCurrentFolderName(folder);
-                            
-                            var index = _indexMode switch {
-                                MegaPintIndexMode.NumbersUp => $"{i + 1}",
-                                MegaPintIndexMode.NumbersDown => $"{individualNamesCount[individualNames.IndexOf(folderName)] - i}",
-                                MegaPintIndexMode.AlphabeticalUp => $"{NumberToAlphabetical(i + 1)}",
-                                MegaPintIndexMode.AlphabeticalDown => $"{NumberToAlphabetical(individualNamesCount[individualNames.IndexOf(folderName)] - i)}",
-                                _ => ""
-                            };
+                                var index = _indexMode switch {
+                                    MegaPintIndexMode.NumbersUp => $"{i + 1}",
+                                    MegaPintIndexMode.NumbersDown => $"{individualNamesCount[individualNames.IndexOf(file.ShortName)] - i}",
+                                    MegaPintIndexMode.AlphabeticalUp => $"{NumberToAlphabetical(i + 1)}",
+                                    MegaPintIndexMode.AlphabeticalDown => $"{NumberToAlphabetical(individualNamesCount[individualNames.IndexOf(file.ShortName)] - i)}",
+                                    _ => ""
+                                };
 
-                            var formattedIndex = _indexFormat.Replace(_indexPrefix, index);
-                            var newName = (_indexPosition == MegaPintIndexPosition.Start ? formattedIndex : "") +
-                                          folderName + (_indexPosition == MegaPintIndexPosition.End ? formattedIndex : "");
+                                var formattedIndex = _indexFormat.Replace(_indexPrefix, index);
+                                var newName = (_indexPosition == MegaPintIndexPosition.Start ? formattedIndex : "") +
+                                              file.ShortName + (_indexPosition == MegaPintIndexPosition.End ? formattedIndex : "");
+                                MegaPint.Interface.bulkRenamingSelectedFiles[i] = SetFileName(file, newName, finalStep, false);
+                            }
+                        }
+
+                        if (MegaPint.Interface.bulkRenamingSelectedFolders != null) {
+                            individualNames = new List<string>();
+                            individualNamesCount = new List<int>();
+                        
+                            foreach (var folder in MegaPint.Interface.bulkRenamingSelectedFolders) {
+                                if (individualNames.Contains(folder.ShortName)) {
+                                    var index = individualNames.IndexOf(folder.ShortName);
+                                    individualNamesCount[index]++;
+                                }
+                                else {
+                                    individualNames.Add(folder.ShortName);
+                                    individualNamesCount.Add(1);
+                                }
+                            }
+                        
+                            for (var i = 0; i < MegaPint.Interface.bulkRenamingSelectedFolders.Count; i++) {
+                                var folder = MegaPint.Interface.bulkRenamingSelectedFolders[i];
+
+                                var index = _indexMode switch {
+                                    MegaPintIndexMode.NumbersUp => $"{i + 1}",
+                                    MegaPintIndexMode.NumbersDown => $"{individualNamesCount[individualNames.IndexOf(folder.ShortName)] - i}",
+                                    MegaPintIndexMode.AlphabeticalUp => $"{NumberToAlphabetical(i + 1)}",
+                                    MegaPintIndexMode.AlphabeticalDown => $"{NumberToAlphabetical(individualNamesCount[individualNames.IndexOf(folder.ShortName)] - i)}",
+                                    _ => ""
+                                };
+
+                                var formattedIndex = _indexFormat.Replace(_indexPrefix, index);
+                                var newName = (_indexPosition == MegaPintIndexPosition.Start ? formattedIndex : "") +
+                                          folder.ShortName + (_indexPosition == MegaPintIndexPosition.End ? formattedIndex : "");
                             
-                            SetFolderName(folder, i, newName, files, finalStep);
+                                MegaPint.Interface.bulkRenamingSelectedFolders[i] = SetFolderName(folder, newName, finalStep);
+                            }   
                         }
                         break;
                     default: throw new ArgumentOutOfRangeException();
@@ -457,53 +502,60 @@ namespace MegaPint.Editor.Utility {
                 EditorSceneManager.MarkSceneDirty(o.scene);
             }
 
-            private string GetCurrentFileName(string fullFileName) {
-                var args = fullFileName.Split("/");
-                return args[^1].Split(".")[0];
+            private MegaPintAsset SetFileName(MegaPintAsset file, string newName, bool finalStep, bool useNewNameAsPath) {
+
+                file.ShortName = newName;
+                if (!finalStep) return file;
+                
+                var args = file.AssetPath.Split("/").ToList();
+                args[^1] = newName;
+                var newPath = "";
+                for (var i = 0; i < args.Count - 1; i++) {
+                    newPath += $"/{args[i]}";
+                }
+                newPath += $"/{args[^1]}{file.Ending}";
+                newPath = newPath.Remove(0, 1);
+
+                if (useNewNameAsPath) newPath = newName;
+
+                var oldPath = file.AssetPath;
+                if (useNewNameAsPath) {
+                    oldPath = newName.Replace(newName.Split("/")[^1], file.AssetPath.Split("/")[^1]);
+                }
+                
+                if (!AssetDatabase.ValidateMoveAsset(oldPath, newPath).Equals(""))
+                    newPath = AssetDatabase.GenerateUniqueAssetPath(newPath);
+
+                AssetDatabase.MoveAsset(oldPath, newPath);
+                AssetDatabase.Refresh();
+
+                return LoadAssetAtPath(newPath);
             }
-            
-            private void SetFileName(string fileName, int index, string newName, bool finalStep) {
-                var args = fileName.Split("/");
-                var result = "";
-                for (var i = 0; i < args.Length - 1; i++) {
-                    result += $"{args[i]}/";
-                }
-                
-                result += $"{newName}.{args[^1].Split(".")[1]}";
 
-                if (finalStep) {
-                    if (!AssetDatabase.ValidateMoveAsset(MegaPint.Interface.bulkRenamingSelectedFilesBackUp[index], result).Equals("")) 
-                        result = AssetDatabase.GenerateUniqueAssetPath(result);
-                    Debug.Log($"Old: {MegaPint.Interface.bulkRenamingSelectedFilesBackUp[index]} | New: {result}");
-                    AssetDatabase.MoveAsset(MegaPint.Interface.bulkRenamingSelectedFilesBackUp[index], result);
-                    AssetDatabase.Refresh();
-                }
-                
-                MegaPint.Interface.bulkRenamingSelectedFiles[index] = result;
-            }
+            private MegaPintAsset SetFolderName(MegaPintAsset folder, string newName, bool finalStep) {
 
-            private string GetCurrentFolderName(string fullFolderName) {
-                var args = fullFolderName.Split("/");
-                return args[^1];
-            }
-
-            private void SetFolderName(string folderName, int index, string newName, List<string> files, bool finalStep) {
-                var args = folderName.Split("/");
-                var result = folderName.Replace(args[^1], newName);
-
-                if (finalStep) {
-                    if (!AssetDatabase.ValidateMoveAsset(MegaPint.Interface.bulkRenamingSelectedFoldersBackUp[index], result).Equals("")) 
-                        result = AssetDatabase.GenerateUniqueAssetPath(result);
-                    AssetDatabase.MoveAsset(MegaPint.Interface.bulkRenamingSelectedFoldersBackUp[index], result);
-                    AssetDatabase.Refresh();
-                }
+                folder.ShortName = newName;
+                if (!finalStep) return folder;
                 
-                for (var i = 0; i < files.Count; i++) {
-                    if (files[i].StartsWith(folderName)) files[i] = files[i].Replace(folderName, result);
-                }
+                var args = folder.AssetPath.Split("/").ToList();
+                var result = folder.AssetPath.Replace(args[^1], newName);
+
+                if (!AssetDatabase.ValidateMoveAsset(folder.AssetPath, result).Equals("")) 
+                    result = AssetDatabase.GenerateUniqueAssetPath(result);
                 
-                MegaPint.Interface.bulkRenamingSelectedFolders[index] = result;
-                MegaPint.Interface.bulkRenamingSelectedFiles = files;
+                AssetDatabase.MoveAsset(folder.AssetPath, result);
+                AssetDatabase.Refresh();
+
+                if (MegaPint.Interface.bulkRenamingSelectedFiles != null) {
+                    for (var i = 0; i < MegaPint.Interface.bulkRenamingSelectedFiles.Count; i++) {
+                        var file = MegaPint.Interface.bulkRenamingSelectedFiles[i];
+                        if (!file.AssetPath.StartsWith(folder.AssetPath)) continue;
+                        var newFileName = file.AssetPath.Replace(folder.AssetPath, result);
+                        MegaPint.Interface.bulkRenamingSelectedFiles[i] = SetFileName(file, newFileName, true, true);
+                    }   
+                }
+
+                return LoadAssetAtPath(result);
             }
         }
         
