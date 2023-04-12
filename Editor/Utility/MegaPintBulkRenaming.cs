@@ -43,7 +43,6 @@ namespace MegaPint.Editor.Utility {
         }
 
         public class MegaPintAsset {
-            public string MetaPath;
             public string AssetPath;
             public string ShortName;
             public string Ending;
@@ -76,7 +75,6 @@ namespace MegaPint.Editor.Utility {
             Debug.Log($"Added Asset: \n MetaPath: {path} \n AssetPath: {assetPath} \n Ending: {ending} \n ShortName: {shortName}");
             
             return new MegaPintAsset {
-                MetaPath = path,
                 AssetPath = assetPath,
                 Ending = ending,
                 ShortName = shortName
@@ -105,12 +103,11 @@ namespace MegaPint.Editor.Utility {
             if (MegaPint.Interface.commandChain == null || MegaPint.Interface.commandChain.Count == 0) 
                 MegaPint.Interface.commandChain = new List<MegaPintRenameCommand> { new() };
             MegaPint.Interface.commandChainRemove = new List<MegaPintRenameCommand>();
-
             MegaPint.Interface.moveUp = null;
             MegaPint.Interface.moveDown = null;
         }
 
-        public enum MegaPintRenamingCommandFunction { SetTo, Remove, RemoveAt, Replace, Insert, Index }
+        public enum MegaPintRenamingCommandFunction { SetTo, Remove, RemoveAt, Replace, Insert, InsertAtPattern, Index }
 
         [Serializable]
         public class MegaPintRenameCommand
@@ -125,6 +122,9 @@ namespace MegaPint.Editor.Utility {
             private string _replaceNew;
             private int _insertIndex;
             private string _insertString;
+            
+            private enum MegaPintInsertPattern { LowerUpper, UpperLower }
+            private MegaPintInsertPattern _insertPattern;
 
             private enum MegaPintIndexPosition {
                 End,
@@ -160,8 +160,7 @@ namespace MegaPint.Editor.Utility {
                 MegaPintGUIUtility.Space(1);
                 function = (MegaPintRenamingCommandFunction)EditorGUILayout.EnumPopup("Function", function);
 
-                switch (function)
-                {
+                switch (function) {
                     case MegaPintRenamingCommandFunction.SetTo:
                         EditorGUILayout.HelpBox("Fully change the string to the new string", MessageType.Info);
                         MegaPintGUIUtility.Space(1);
@@ -199,6 +198,13 @@ namespace MegaPint.Editor.Utility {
                         _insertString = EditorGUILayout.TextField("Inserted string", _insertString);
 
                         if (_insertIndex < 0) _insertIndex = 0;
+                        break;
+                    case MegaPintRenamingCommandFunction.InsertAtPattern:
+                        EditorGUILayout.HelpBox("Insert a string at a certain pattern", MessageType.Info);
+                        MegaPintGUIUtility.Space(1);
+
+                        _insertPattern = (MegaPintInsertPattern)EditorGUILayout.EnumPopup("Pattern", _insertPattern);
+                        _insertString = EditorGUILayout.TextField("Inserted string", _insertString);
                         break;
                     case MegaPintRenamingCommandFunction.Index:
                         EditorGUILayout.HelpBox("Index all selection based on the specified format", MessageType.Info);
@@ -370,6 +376,168 @@ namespace MegaPint.Editor.Utility {
                                 var folderName = folder.ShortName;
                                 if (_insertIndex > folderName.Length - 1) continue;
                                 var newName = folderName.Insert(_insertIndex, _insertString);
+                                MegaPint.Interface.bulkRenamingSelectedFolders[i] = SetFolderName(folder, newName, finalStep);
+                            }   
+                        }
+                        break;
+                    case MegaPintRenamingCommandFunction.InsertAtPattern:
+                        foreach (var o in MegaPint.Interface.bulkRenamingSelectedGameObjects) {
+                            if (_insertIndex > o.name.Length - 1) continue;
+
+                            var newName = o.name;
+                            switch (_insertPattern) {
+                                case MegaPintInsertPattern.LowerUpper:
+                                    var detectedPatternIndices = new List<int>();
+                                    var lastChar = newName[0];
+                                    for (var i = 0; i < newName.Length; i++) {
+                                        var c = newName[i];
+                                        if (char.IsUpper(c) && !char.IsUpper(lastChar)) {
+                                            detectedPatternIndices.Add(i);
+                                        }
+                                        
+                                        lastChar = c;
+                                    }
+                                    
+                                    var insertedChars = 0;
+                                    if (detectedPatternIndices.Count > 0) {
+                                        foreach (var index in detectedPatternIndices) {
+                                            newName = newName.Insert(index + insertedChars, _insertString);
+                                            insertedChars += _insertString.Length;
+                                        }
+                                    }
+                                    break;
+                                case MegaPintInsertPattern.UpperLower:
+                                    detectedPatternIndices = new List<int>();
+                                    lastChar = newName[0];
+                                    for (var i = 0; i < newName.Length; i++) {
+                                        var c = newName[i];
+                                        if (!char.IsUpper(c) && char.IsUpper(lastChar)) {
+                                            detectedPatternIndices.Add(i);
+                                        }
+                                        
+                                        lastChar = c;
+                                    }
+                                    
+                                    insertedChars = 0;
+                                    if (detectedPatternIndices.Count > 0) {
+                                        foreach (var index in detectedPatternIndices) {
+                                            newName = newName.Insert(index + insertedChars, _insertString);
+                                            insertedChars += _insertString.Length;
+                                        }
+                                    }
+                                    break;
+                                default: throw new ArgumentOutOfRangeException();
+                            }
+
+                            SetGameObjectName(o, newName);
+                        }
+
+                        if (MegaPint.Interface.bulkRenamingSelectedFiles != null) {
+                            for (var i = 0; i < MegaPint.Interface.bulkRenamingSelectedFiles.Count; i++) {
+                                var file = MegaPint.Interface.bulkRenamingSelectedFiles[i];
+                                var fileName = file.ShortName;
+                                if (_insertIndex > fileName.Length - 1) continue;
+                                
+                                var newName = fileName;
+                                switch (_insertPattern) {
+                                    case MegaPintInsertPattern.LowerUpper:
+                                        var detectedPatternIndices = new List<int>();
+                                        var lastChar = newName[0];
+                                        for (var j = 0; j < newName.Length; j++) {
+                                            var c = newName[j];
+                                            if (char.IsUpper(c) && !char.IsUpper(lastChar)) {
+                                                detectedPatternIndices.Add(j);
+                                            }
+                                            
+                                            lastChar = c;
+                                        }
+                                        
+                                        var insertedChars = 0;
+                                        if (detectedPatternIndices.Count > 0) {
+                                            foreach (var index in detectedPatternIndices) {
+                                                newName = newName.Insert(index + insertedChars, _insertString);
+                                                insertedChars += _insertString.Length;
+                                            }
+                                        }
+                                        break;
+                                    case MegaPintInsertPattern.UpperLower:
+                                        detectedPatternIndices = new List<int>();
+                                        lastChar = newName[0];
+                                        for (var j = 0; j < newName.Length; j++) {
+                                            var c = newName[j];
+                                            if (!char.IsUpper(c) && char.IsUpper(lastChar)) {
+                                                detectedPatternIndices.Add(j);
+                                            }
+                                            
+                                            lastChar = c;
+                                        }
+                                        
+                                        insertedChars = 0;
+                                        if (detectedPatternIndices.Count > 0) {
+                                            foreach (var index in detectedPatternIndices) {
+                                                newName = newName.Insert(index + insertedChars, _insertString);
+                                                insertedChars += _insertString.Length;
+                                            }
+                                        }
+                                        break;
+                                    default: throw new ArgumentOutOfRangeException();
+                                }
+                                
+                                MegaPint.Interface.bulkRenamingSelectedFiles[i] = SetFileName(file, newName, finalStep, false);
+                            }   
+                        }
+
+                        if (MegaPint.Interface.bulkRenamingSelectedFolders != null) {
+                            for (var i = 0; i < MegaPint.Interface.bulkRenamingSelectedFolders.Count; i++) {
+                                var folder = MegaPint.Interface.bulkRenamingSelectedFolders[i];
+                                var folderName = folder.ShortName;
+                                if (_insertIndex > folderName.Length - 1) continue;
+                                                                
+                                var newName = folderName;
+                                switch (_insertPattern) {
+                                    case MegaPintInsertPattern.LowerUpper:
+                                        var detectedPatternIndices = new List<int>();
+                                        var lastChar = newName[0];
+                                        for (var j = 0; j < newName.Length; j++) {
+                                            var c = newName[j];
+                                            if (char.IsUpper(c) && !char.IsUpper(lastChar)) {
+                                                detectedPatternIndices.Add(j);
+                                            }
+                                            
+                                            lastChar = c;
+                                        }
+                                        
+                                        var insertedChars = 0;
+                                        if (detectedPatternIndices.Count > 0) {
+                                            foreach (var index in detectedPatternIndices) {
+                                                newName = newName.Insert(index + insertedChars, _insertString);
+                                                insertedChars += _insertString.Length;
+                                            }
+                                        }
+                                        break;
+                                    case MegaPintInsertPattern.UpperLower:
+                                        detectedPatternIndices = new List<int>();
+                                        lastChar = newName[0];
+                                        for (var j = 0; j < newName.Length; j++) {
+                                            var c = newName[j];
+                                            if (!char.IsUpper(c) && char.IsUpper(lastChar)) {
+                                                detectedPatternIndices.Add(j);
+                                            }
+                                            
+                                            lastChar = c;
+                                        }
+                                        
+                                        insertedChars = 0;
+                                        if (detectedPatternIndices.Count > 0) {
+                                            foreach (var index in detectedPatternIndices) {
+                                                newName = newName.Insert(index + insertedChars, _insertString);
+                                                insertedChars += _insertString.Length;
+                                            }
+                                        }
+                                        break;
+                                    default: throw new ArgumentOutOfRangeException();
+                                }
+
                                 MegaPint.Interface.bulkRenamingSelectedFolders[i] = SetFolderName(folder, newName, finalStep);
                             }   
                         }
