@@ -51,6 +51,9 @@ MonoBehaviour:
       - entryName: Command Chain
         hasContent: 1
         function: 3
+      - entryName: Sort Selection
+        hasContent: 0
+        function: 4
   - categoryName: Settings
     menus:
     - menuName: General
@@ -67,4 +70,42 @@ MonoBehaviour:
       hasContent: 0
       function: 0
       menuEntries: []
-  commandChain: []
+  commandChain:
+  - function: 0
+  - function: 3
+  - function: 4
+  - function: 5
+  commandChainRemove: []
+  moveUp:
+    function: 0
+  moveDown:
+    function: 0
+  _bulkRenamingSelectedGameObjects:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _bulkRenamingSelectedFiles:
+  - Assets/Test_INSERT_Name/Test_INSERT_Name.mat
+  _bulkRenamingSelectedFolders:
+  - Assets/Test_INSERT_Name

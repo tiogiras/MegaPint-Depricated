@@ -7,6 +7,7 @@ using System.Linq;
 using MegaPint.Editor.Utility;
 using MegaPint.Editor.Utility.MaterialSets;
 using UnityEditor;
+using UnityEditor.VersionControl;
 using UnityEngine;
 
 namespace MegaPint.Editor {
@@ -27,9 +28,11 @@ namespace MegaPint.Editor {
         public MegaPintBulkRenaming.MegaPintRenameCommand moveUp;
         public MegaPintBulkRenaming.MegaPintRenameCommand moveDown;
         
-        public List<GameObject> _bulkRenamingSelectedGameObjects;
-        public List<string> _bulkRenamingSelectedFiles; // PATHS
-        public List<string> _bulkRenamingSelectedFolders; // PATHS
+        public List<GameObject> bulkRenamingSelectedGameObjects;
+        public List<string> bulkRenamingSelectedFiles; // PATHS
+        public List<string> bulkRenamingSelectedFilesBackUp; // PATHS
+        public List<string> bulkRenamingSelectedFolders; // PATHS
+        public List<string> bulkRenamingSelectedFoldersBackUp; // PATHS
 
         private Vector2 _bulkRenamingScrollPos;
         private Vector2 _bulkRenamingScrollPos1;
@@ -588,9 +591,17 @@ namespace MegaPint.Editor {
                                             listFinal.Add(str);
                                         }
 
-                                        _bulkRenamingSelectedFiles ??= new List<string>();
-                                        _bulkRenamingSelectedFiles.AddRange(listFinal);
-                                        _bulkRenamingSelectedFiles = MegaPintBulkRenaming.RemoveDuplicates(_bulkRenamingSelectedFiles);
+                                        bulkRenamingSelectedFiles ??= new List<string>();
+                                        bulkRenamingSelectedFiles.AddRange(listFinal);
+                                        
+                                        bulkRenamingSelectedFiles = MegaPintBulkRenaming.RemoveDuplicates(bulkRenamingSelectedFiles);
+                                        bulkRenamingSelectedFilesBackUp = bulkRenamingSelectedFiles;
+                                        var log = "";
+                                        foreach (var file in bulkRenamingSelectedFilesBackUp) {
+                                            log += $"\n{file}";
+                                        }
+
+                                        Debug.Log(log);
                                     }
 
                                     if (GUILayout.Button("Add Folder")) {
@@ -610,23 +621,28 @@ namespace MegaPint.Editor {
 
                                         folderPath = folderPath.Remove(folderPath.Length - 1, 1);
 
-                                        _bulkRenamingSelectedFolders ??= new List<string>();
-                                        _bulkRenamingSelectedFolders.Add(folderPath);
-                                        _bulkRenamingSelectedFolders = MegaPintBulkRenaming.RemoveDuplicates(_bulkRenamingSelectedFolders);
+                                        bulkRenamingSelectedFolders ??= new List<string>();
+                                        bulkRenamingSelectedFolders.Add(folderPath);
+                                        
+                                        bulkRenamingSelectedFolders = MegaPintBulkRenaming.RemoveDuplicates(bulkRenamingSelectedFolders);
+                                        bulkRenamingSelectedFoldersBackUp = bulkRenamingSelectedFolders;
                                     }
 
                                     if (GUILayout.Button("Clear")) {
-                                        _bulkRenamingSelectedGameObjects?.Clear();
-                                        _bulkRenamingSelectedFiles?.Clear();
-                                        _bulkRenamingSelectedFolders?.Clear();
+                                        bulkRenamingSelectedGameObjects?.Clear();
+                                        bulkRenamingSelectedFiles?.Clear();
+                                        bulkRenamingSelectedFolders?.Clear();
+                                        
+                                        bulkRenamingSelectedFilesBackUp?.Clear();
+                                        bulkRenamingSelectedFoldersBackUp?.Clear();
                                     }
                                     
                                     EditorGUILayout.EndHorizontal();
                                     
                                     if (GUILayout.Button("Add selected GameObjects")) {
-                                        _bulkRenamingSelectedGameObjects ??= new List<GameObject>();
-                                        _bulkRenamingSelectedGameObjects.AddRange(Selection.gameObjects);
-                                        _bulkRenamingSelectedGameObjects = MegaPintBulkRenaming.RemoveDuplicates(_bulkRenamingSelectedGameObjects);
+                                        bulkRenamingSelectedGameObjects ??= new List<GameObject>();
+                                        bulkRenamingSelectedGameObjects.AddRange(Selection.gameObjects);
+                                        bulkRenamingSelectedGameObjects = MegaPintBulkRenaming.RemoveDuplicates(bulkRenamingSelectedGameObjects);
                                     }
                                     
                                     MegaPintGUIUtility.GuiLine(3, .25f);
@@ -634,11 +650,11 @@ namespace MegaPint.Editor {
                                     _bulkRenamingScrollPos = GUILayout.BeginScrollView(_bulkRenamingScrollPos, GUIStyle.none, GUI.skin.verticalScrollbar);
                                     
                                     EditorGUILayout.LabelField("GameObjects", MegaPint.MegaPintGUI.GetStyle("centertext1"));
-                                    if (_bulkRenamingSelectedGameObjects is { Count: > 0 }) {
-                                        var removes = _bulkRenamingSelectedGameObjects.Where(MegaPintBulkRenaming.DrawGameObjectEntry).ToList();
+                                    if (bulkRenamingSelectedGameObjects is { Count: > 0 }) {
+                                        var removes = bulkRenamingSelectedGameObjects.Where(MegaPintBulkRenaming.DrawGameObjectEntry).ToList();
                                         if (removes.Count > 0) {
                                             foreach (var remove in removes) {
-                                                _bulkRenamingSelectedGameObjects.Remove(remove);
+                                                bulkRenamingSelectedGameObjects.Remove(remove);
                                             }
                                         }
                                     }
@@ -650,11 +666,11 @@ namespace MegaPint.Editor {
                                     MegaPintGUIUtility.Space(2);
                                     
                                     EditorGUILayout.LabelField("Files", MegaPint.MegaPintGUI.GetStyle("centertext1"));
-                                    if (_bulkRenamingSelectedFiles is { Count: > 0 }) {
-                                        var removes = _bulkRenamingSelectedFiles.Where(MegaPintBulkRenaming.DrawFileEntry).ToList();
+                                    if (bulkRenamingSelectedFiles is { Count: > 0 }) {
+                                        var removes = bulkRenamingSelectedFiles.Where(MegaPintBulkRenaming.DrawFileEntry).ToList();
                                         if (removes.Count > 0) {
                                             foreach (var remove in removes) {
-                                                _bulkRenamingSelectedFiles.Remove(remove);
+                                                bulkRenamingSelectedFiles.Remove(remove);
                                             }
                                         }
                                     }
@@ -666,11 +682,11 @@ namespace MegaPint.Editor {
                                     MegaPintGUIUtility.Space(2);
                                     
                                     EditorGUILayout.LabelField("Folders", MegaPint.MegaPintGUI.GetStyle("centertext1"));
-                                    if (_bulkRenamingSelectedFolders is { Count: > 0 }) {
-                                        var removes = _bulkRenamingSelectedFolders.Where(MegaPintBulkRenaming.DrawFolderEntry).ToList();
+                                    if (bulkRenamingSelectedFolders is { Count: > 0 }) {
+                                        var removes = bulkRenamingSelectedFolders.Where(MegaPintBulkRenaming.DrawFolderEntry).ToList();
                                         if (removes.Count > 0) {
                                             foreach (var remove in removes) {
-                                                _bulkRenamingSelectedFolders.Remove(remove);
+                                                bulkRenamingSelectedFolders.Remove(remove);
                                             }
                                         }
                                     }
@@ -745,8 +761,12 @@ namespace MegaPint.Editor {
                                     
                                     if (GUILayout.Button("Execute Command Chain", MegaPint.MegaPintGUI.GetStyle("button1"))) {
                                         foreach (var command in commandChain) {
-                                            command.Execute(_bulkRenamingSelectedGameObjects, _bulkRenamingSelectedFiles, _bulkRenamingSelectedFolders);
+                                            command.Execute(bulkRenamingSelectedGameObjects,
+                                                bulkRenamingSelectedFiles, bulkRenamingSelectedFolders,
+                                                commandChain[^1] == command);
                                         }
+                                        bulkRenamingSelectedFilesBackUp = bulkRenamingSelectedFiles;
+                                        bulkRenamingSelectedFoldersBackUp = bulkRenamingSelectedFolders;
                                     }
 
                                     EditorGUILayout.EndScrollView();
